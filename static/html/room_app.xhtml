@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script type="text/javascript" src="static/js/jquery.js"></script>
+    <script type="text/javascript" src="static/js/jquery.textfill.js"></script>
+    <title>Room</title>
+  </head>
+  <style>
+    body{
+      background: #000;
+      color: white;
+      font-family: sans-serif;
+      // font-weight: 100;
+    }
+    .text-center {
+      margin: 0;
+      padding:0;
+      text-align: center;
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translateX(-50%) translateY(-30%);
+    } 
+    #demo {
+      font-size: 120px;
+    }
+    .computer {
+      width: 900px;
+    }
+    .computer .jtextfill {
+      max-height: 500px;
+    }
+    .computer .jtextfill span {
+      font-family: "VT323";
+    }
+  </style>
+  <body>
+    <button onclick="contactServer()">Click Here</button>
+    <button onclick="start_type_writer()">Click me</button>
+    <div class="computer text-center">
+      <div class="jtextfill">
+        <span id="demo">Benvenuti</span>
+      </div>
+    </div>
+  </body>
+   
+  <script>
+    // Create websocket connection
+    const socket = new WebSocket('ws://localhost:5000');
+
+    // Connection opened
+    socket.addEventListener('open', function (event) {
+      // socket.send('Connection Established');
+      console.log("Connected to the WS server!");
+    });
+
+    // Connection closed
+    socket.addEventListener('close', function (event) {
+      console.log("Disonnected to the WS server!");
+    });
+
+    // Listen for messages
+    socket.addEventListener('message', function (event) {
+      console.log(event.data);
+      var data = JSON.parse(event.data);
+      var text = data['data']['text'];
+      start_type_writer(text);
+      console.log('start typeWriter');
+    });
+
+    // Send a message to the websocket
+    const contactServer = () => {
+      socket.send("Initialize");
+    }
+  </script>
+
+  <script type="text/javascript">
+    //<![CDATA[
+    var size = 80;
+
+    function type_writer(txt, i) {
+      if (i < txt.length) {
+        console.log(txt.charAt(i));
+        document.getElementById("demo").innerHTML += txt.charAt(i);
+        // i++;
+        $('.jtextfill').textfill({debug: false, maxFontPixels: size});
+        setTimeout(type_writer(txt, i+1), speed);
+      }
+    }
+
+    function start_type_writer(txt) {
+      document.getElementById("demo").innerHTML = "";
+      console.log(txt);
+      type_writer(txt, 0);
+    }
+    //]]>
+  </script>
+  <script type="text/javascript">
+    //<![CDATA[
+      var i = 0;
+      // var txt = 'Lorem ipsum dummy text blabla.';
+      // var speed = 50;
+      // var size = 80;
+
+      // function start_type_writer() {
+      //   if (i < txt.length) {
+      //     document.getElementById("demo").innerHTML += txt.charAt(i);
+      //     i++;
+      //    $('.jtextfill').textfill({debug: false, maxFontPixels: size});
+      //     setTimeout(start_type_writer, speed);
+      //   }
+      // }
+    //]]>
+  </script>
+
+</html>

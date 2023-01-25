@@ -1,0 +1,8 @@
+twisted
+qtpy
+pyqt5
+vext
+vext.gi
+pyqtwebengine
+pywebview
+websockets
