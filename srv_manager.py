@@ -41,6 +41,13 @@ def send_event(data):
 #
 ######################################################
 
+# window = webview.create_window('Escape Room Manager', 'http://localhost:8888')
+
+URL_BASE = 'http://localhost'
+PORT = 8888
+WINDOW_NAME = 'Escape Room Manager'
+
+
 class SendEvent(Resource):
 
   def getChild(self, name, request):
@@ -87,7 +94,7 @@ class Html(Resource):
 
 
 proc = Popen(
-    ['python3', '%s/manager_client.py' % os.path.dirname(os.path.realpath(__file__))],
+    ['python3', '%s/window.py' % os.path.dirname(os.path.realpath(__file__)), URL_BASE, str(PORT), WINDOW_NAME],
     shell=False,
     stdin=None,
     stdout=None,
@@ -100,7 +107,7 @@ root.putChild(b'', Html())
 root.putChild(b'event', SendEvent())
 root.putChild(b'static', File('static'))
 factory = Site(root)
-reactor.listenTCP(8888, factory)
+reactor.listenTCP(PORT, factory)
 
 
 def kill_child_process():
