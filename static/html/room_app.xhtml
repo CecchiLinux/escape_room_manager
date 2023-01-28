@@ -15,7 +15,7 @@
       font-family: sans-serif;
       // font-weight: 100;
     }
-    .text-center {
+    .text_center {
       margin: 0;
       padding:0;
       text-align: center;
@@ -24,48 +24,54 @@
       left: 50%;
       transform: translateX(-50%) translateY(-30%);
     } 
-    #demo {
+    #text_element {
       font-size: 120px;
     }
-    .computer {
+    .text_container {
       width: 900px;
     }
-    .computer .jtextfill {
+    .text_container .jtextfill {
       max-height: 500px;
     }
-    .computer .jtextfill span {
+    .text_container .jtextfill span {
       font-family: "VT323";
     }
   </style>
   <body>
     <button onclick="contactServer()">Click Here</button>
-    <button onclick="start_type_writer()">Click me</button>
-    <div class="computer text-center">
+    <!-- <button onclick="start_type_writer()">Click me</button> -->
+    <div class="text_container text_center">
       <div class="jtextfill">
-        <span id="demo">Benvenuti</span>
+        <span id="text_element">Benvenuti</span>
       </div>
     </div>
   </body>
    
   <script type="text/javascript">
     //<![CDATA[
-    var i = 0;
-    var speed = 300;
-    var size = 80;
+    //----------------------------------------------------------------------------------
+    // write to room monitor
+    //------------------------------------
+    var text_index = 0;
+    var text_global = "Welcome"
+    var text_speed = 220;
+    var text_size = 80;
 
     function type_writer() {
-      if (i < txt.length) {
-        document.getElementById("demo").innerHTML += txt.charAt(i);
-        i++;
-        $('.jtextfill').textfill({debug: false, maxFontPixels: size});
-        setTimeout(type_writer, speed);
+      if (text_index < text_global.length) {
+        var current = $("#text_element").html();
+        $("#text_element").html(current + text_global.charAt(text_index));
+        text_index++;
+        $('.jtextfill').textfill({debug: false, maxFontPixels: text_size});
+        setTimeout(type_writer, text_speed);
       }
     }
 
-    function start_type_writer(text) {
-      txt = text;
-      document.getElementById("demo").innerHTML = "";
-      console.log(txt);
+    function start_type_writer(text_to_write) {
+      text_index = 0;
+      text_global = text_to_write;
+      $("#text_element").html("");
+      console.log(text_global);
       type_writer();
     }
     //]]>
@@ -73,7 +79,18 @@
 
   <script type="text/javascript">
     //<![CDATA[
+    //----------------------------------------------------------------------------------
+    // timer
+    //------------------------------------
+    // TODO
+    //]]>
+  </script>
 
+  <script type="text/javascript">
+    //<![CDATA[
+    //----------------------------------------------------------------------------------
+    // communication and event handler
+    //------------------------------------
     function map_and_run_event(event) {
       var message = JSON.parse(event.data);
       var message_event = message['event'];
