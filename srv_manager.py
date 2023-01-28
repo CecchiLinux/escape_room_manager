@@ -7,12 +7,14 @@ from twisted.web.resource import Resource
 from twisted.web.static import File
 from twisted.python.filepath import FilePath
 from twisted.internet import reactor
+from logger import log_info, log_error
 
 # ## communication needs
 import asyncio
 import websockets
 
 
+COMM_ROOM_TIMEOUT = 2
 WEBSOCKET_SERVER_LOCAL = 'ws://localhost:5000'
 
 #######################################################
@@ -21,19 +23,37 @@ WEBSOCKET_SERVER_LOCAL = 'ws://localhost:5000'
 #####################################################
 
 
+async def wait_room_reply(ws):
+  response = await ws.recv()  # wait for client
+  return response
+
+
 async def event(message):
-  async with websockets.connect(WEBSOCKET_SERVER_LOCAL) as websocket:
+  async with websockets.connect(WEBSOCKET_SERVER_LOCAL) as ws:
     message = json.dumps(message)
     print(f'send message to broker: {message}')
-    await websocket.send(message)
+    await ws.send(message)
     print('broker confirmed')
-    response = await websocket.recv()
-    print(f'message from broker: {response}')
+    res = await ws.recv()
+    print(f'message from broker: {res}')
+    try:
+      res = await asyncio.wait_for(wait_room_reply(ws), timeout=COMM_ROOM_TIMEOUT)
+      # response = await ws.recv()  # wait for client
+      print(f'message from room: {res}')
+    except asyncio.exceptions.TimeoutError as exc:
+      print('timeout!')
+      log_error(str(exc))
+      print('can\'t communicate with the room')
+    print('exit')
  
 
 def send_event(data):
-  asyncio.get_event_loop().run_until_complete(event(data))
-  return Resource()  # ?
+  try:
+    asyncio.get_event_loop().run_until_complete(event(data))
+  except Exception as exc:
+    log_error(str(exc))
+    # raise ss
+    return -1
 
 
 ########################################################
@@ -49,26 +69,28 @@ WINDOW_NAME = 'Escape Room Manager'
 class SendEvent(Resource):
 
   def getChild(self, name, request):
-    print(name)
+    res = -1
     if name == b'text_to_room':
       _text = request.args[b'text'][0].decode()
       _d = {'event': 'text_to_room', 'data': {'text': _text}, 'timestamp': ''}
-      return send_event(_d)
+      res = send_event(_d)
 
     if name == b'timer_stop':
       _d = {'event': 'timer_stop', 'data': {}, 'timestamp': ''}
-      return send_event(_d)
+      res = send_event(_d)
 
     if name == b'timer_start':
       _d = {'event': 'timer_start', 'data': {}, 'timestamp': ''}
-      return send_event(_d)
+      res = send_event(_d)
 
     if name == b'start':
       _d = {'event': 'start', 'data': {'end_datetime': '', 'minutes': 60}, 'timestamp': ''}
-      return send_event(_d)
+      res = send_event(_d)
 
-    send_event({'event': 'hello'})
-    return self
+    if res == -1:
+      log_error("cannot contact the broker")
+      return Resource()  # maybe return self
+    return Resource()  # maybe return self
 
   def render_POST(self, request):
     _at = request.prepath 

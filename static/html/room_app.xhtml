@@ -132,16 +132,18 @@
       console.log("Disonnected to the WS server!");
     });
 
+    // Send a message to the websocket
+    const contact_manager = () => {
+      socket.send("room ok");
+    }
+
     // Listen for messages
     socket.addEventListener('message', function (event) {
       console.log(event.data);
       map_and_run_event(event);
+      contact_manager()
     });
 
-    // Send a message to the websocket
-    const contactServer = () => {
-      socket.send("Initialize");
-    }
     //]]>
   </script>
 

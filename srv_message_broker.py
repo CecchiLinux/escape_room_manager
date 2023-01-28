@@ -10,6 +10,7 @@ connected = set()
 
 
 async def echo_broadcast(websocket, path):
+  # when room connects, this function add it to the connected (no messages to read)
   connected.add(websocket)  # register websocket (no duplicates, it's a set)
   print(connected)  # debug
   try:
