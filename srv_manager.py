@@ -24,24 +24,22 @@ WEBSOCKET_SERVER_LOCAL = 'ws://localhost:5000'
 async def event(message):
   async with websockets.connect(WEBSOCKET_SERVER_LOCAL) as websocket:
     message = json.dumps(message)
-    print(message)
+    print(f'send message to broker: {message}')
     await websocket.send(message)
+    print('broker confirmed')
     response = await websocket.recv()
-    print(response)
+    print(f'message from broker: {response}')
  
 
 def send_event(data):
-  print(json.dumps(data))
   asyncio.get_event_loop().run_until_complete(event(data))
-  return Resource()
+  return Resource()  # ?
 
 
 ########################################################
 # ## Manager UI
 #
 ######################################################
-
-# window = webview.create_window('Escape Room Manager', 'http://localhost:8888')
 
 URL_BASE = 'http://localhost'
 PORT = 8888
@@ -54,24 +52,19 @@ class SendEvent(Resource):
     print(name)
     if name == b'text_to_room':
       _text = request.args[b'text'][0].decode()
-      _d = {
-          'event': 'text_to_room',
-          'data': {
-              'text': _text,
-          },
-          'timestamp': '',
-      }
+      _d = {'event': 'text_to_room', 'data': {'text': _text}, 'timestamp': ''}
+      return send_event(_d)
+
+    if name == b'timer_stop':
+      _d = {'event': 'timer_stop', 'data': {}, 'timestamp': ''}
+      return send_event(_d)
+
+    if name == b'timer_start':
+      _d = {'event': 'timer_start', 'data': {}, 'timestamp': ''}
       return send_event(_d)
 
     if name == b'start':
-      _d = {
-          'event': 'start',
-          'data': {
-              'end_datetime': '',
-              'minutes': 60,
-          },
-          'timestamp': '',
-      }
+      _d = {'event': 'start', 'data': {'end_datetime': '', 'minutes': 60}, 'timestamp': ''}
       return send_event(_d)
 
     send_event({'event': 'hello'})
