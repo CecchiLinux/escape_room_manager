@@ -47,7 +47,60 @@
     </div>
   </body>
    
-  <script>
+  <script type="text/javascript">
+    //<![CDATA[
+    var i = 0;
+    var speed = 300;
+    var size = 80;
+
+    function type_writer() {
+      if (i < txt.length) {
+        document.getElementById("demo").innerHTML += txt.charAt(i);
+        i++;
+        $('.jtextfill').textfill({debug: false, maxFontPixels: size});
+        setTimeout(type_writer, speed);
+      }
+    }
+
+    function start_type_writer(text) {
+      txt = text;
+      document.getElementById("demo").innerHTML = "";
+      console.log(txt);
+      type_writer();
+    }
+    //]]>
+  </script>
+
+  <script type="text/javascript">
+    //<![CDATA[
+
+    function map_and_run_event(event) {
+      var message = JSON.parse(event.data);
+      var message_event = message['event'];
+      if (message_event == "text_to_room") {
+        var text = message['data']['text'];
+        start_type_writer(text);
+        console.log('start type_writer');
+        return;
+      }
+
+      if (message_event == "timer_stop") {
+        console.log('timer_stop');
+        return;
+      }
+
+      if (message_event == "timer_start") {
+        console.log('timer_stop');
+        return;
+      }
+
+      if (message_event == "game_start") {
+        console.log('timer_stop');
+        return;
+      }
+    }
+
+
     // Create websocket connection
     const socket = new WebSocket('ws://localhost:5000');
 
@@ -65,54 +118,13 @@
     // Listen for messages
     socket.addEventListener('message', function (event) {
       console.log(event.data);
-      var data = JSON.parse(event.data);
-      var text = data['data']['text'];
-      start_type_writer(text);
-      console.log('start typeWriter');
+      map_and_run_event(event);
     });
 
     // Send a message to the websocket
     const contactServer = () => {
       socket.send("Initialize");
     }
-  </script>
-
-  <script type="text/javascript">
-    //<![CDATA[
-    var size = 80;
-
-    function type_writer(txt, i) {
-      if (i < txt.length) {
-        console.log(txt.charAt(i));
-        document.getElementById("demo").innerHTML += txt.charAt(i);
-        // i++;
-        $('.jtextfill').textfill({debug: false, maxFontPixels: size});
-        setTimeout(type_writer(txt, i+1), speed);
-      }
-    }
-
-    function start_type_writer(txt) {
-      document.getElementById("demo").innerHTML = "";
-      console.log(txt);
-      type_writer(txt, 0);
-    }
-    //]]>
-  </script>
-  <script type="text/javascript">
-    //<![CDATA[
-      var i = 0;
-      // var txt = 'Lorem ipsum dummy text blabla.';
-      // var speed = 50;
-      // var size = 80;
-
-      // function start_type_writer() {
-      //   if (i < txt.length) {
-      //     document.getElementById("demo").innerHTML += txt.charAt(i);
-      //     i++;
-      //    $('.jtextfill').textfill({debug: false, maxFontPixels: size});
-      //     setTimeout(start_type_writer, speed);
-      //   }
-      // }
     //]]>
   </script>
 
