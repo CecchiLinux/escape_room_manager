@@ -10,30 +10,31 @@ connected = set()
 
 
 async def echo_broadcast(websocket, path):
-  # register
-  connected.add(websocket)
-  print(websocket)
+  connected.add(websocket)  # register websocket (no duplicates, it's a set)
+  print(connected)  # debug
   try:
     async for message in websocket:
-      reply = f'Data recieved as: {message}!'
+      reply = f'broker recieved data as: {message}!'
       print(f'{reply}')
       for conn in connected:
-        print(conn)
-        if conn != websocket:
-          print(f'Room server is repling: {reply}')
+        if conn != websocket:  # don't get back to the sender
+          print(f'broker is forwarding to the recipient: [{conn} - {message}]')
           await conn.send(message)
+          print('recipient confirmed')
         else:
-          await conn.send(reply)
+          print('broker replying to the sender')
+          await conn.send('ok')
+          print('sender confirmed')
   finally:
     # unregister
     connected.remove(websocket)
 
 
-async def echo(websocket):
-  async for message in websocket:
-    reply = f'Data recieved as: {message}!'
-    print(f'Room server is repling: {reply}')
-    await websocket.send(reply)
+# async def echo(websocket):
+#   async for message in websocket:
+#     reply = f'Data recieved as: {message}!'
+#     print(f'Room server is repling: {reply}')
+#     await websocket.send(reply)
 
 
 async def main():
