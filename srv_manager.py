@@ -8,6 +8,7 @@ from twisted.web.static import File
 from twisted.python.filepath import FilePath
 from twisted.internet import reactor
 from logger import log_info, log_error
+from timer import Timer
 
 # ## communication needs
 import asyncio
@@ -75,16 +76,21 @@ class SendEvent(Resource):
       _d = {'event': 'text_to_room', 'data': {'text': _text}, 'timestamp': ''}
       res = send_event(_d)
 
+    if name == b'timer_start':
+      game_timer.start()
+      deadline = game_timer.get_game_end()
+      _d = {'event': 'start_game', 'data': {'deadline': deadline}, 'timestamp': ''}
+      res = send_event(_d)
+
     if name == b'timer_stop':
+      game_timer.stop()
       _d = {'event': 'timer_stop', 'data': {}, 'timestamp': ''}
       res = send_event(_d)
 
-    if name == b'timer_start':
-      _d = {'event': 'timer_start', 'data': {}, 'timestamp': ''}
-      res = send_event(_d)
-
-    if name == b'start':
-      _d = {'event': 'start', 'data': {'end_datetime': '', 'minutes': 60}, 'timestamp': ''}
+    if name == b'start_game':
+      game_timer.first_start()
+      deadline = game_timer.get_game_end()
+      _d = {'event': 'start_game', 'data': {'deadline': deadline}, 'timestamp': ''}
       res = send_event(_d)
 
     if res == -1:
@@ -107,6 +113,15 @@ class Html(Resource):
   def render_GET(self, request):
     return FilePath('static/html/app.xhtml').getContent()
 
+
+def load_settings():
+  return {
+      'game_minutes': 60,
+  }
+
+
+settings = load_settings()
+game_timer = Timer(settings['game_minutes'])
 
 proc = Popen(
     ['python3', '%s/window.py' % os.path.dirname(os.path.realpath(__file__)), URL_BASE, str(PORT), WINDOW_NAME],

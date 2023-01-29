@@ -11,7 +11,7 @@
   <style>
     body{
       background: #000;
-      color: white;
+      color: #fff;
       font-family: sans-serif;
       // font-weight: 100;
     }
@@ -36,11 +36,43 @@
     .text_container .jtextfill span {
       font-family: "VT323";
     }
+    #clockdiv{
+      border: solid 5px;
+      color: #fff;
+      display: inline-block;
+      font-weight: 100;
+      text-align: center;
+      font-size: 130px;
+    }
+    #clockdiv > div{
+      padding: 10px;
+      display: inline-block;
+    }
+    #clockdiv div > span{
+      padding: 15px;
+      display: inline-block;
+    }
   </style>
   <body>
     <button onclick="contactServer()">Click Here</button>
     <!-- <button onclick="start_type_writer()">Click me</button> -->
+
     <div class="text_container text_center">
+      <div id="clockdiv">
+        <div style="display:none">
+          <span class="days" id="timer_days">00</span>
+        </div>
+        <div>
+          <span class="hours" id="timer_hours">00</span> : 
+        </div>
+        <div>
+          <span class="minutes" id="timer_minutes">00</span> : 
+        </div>
+        <div>
+          <span class="seconds" id="timer_seconds">00</span>
+        </div>
+      </div>
+
       <div class="jtextfill">
         <span id="text_element">Benvenuti</span>
       </div>
@@ -82,7 +114,39 @@
     //----------------------------------------------------------------------------------
     // timer
     //------------------------------------
-    // TODO
+    var running = false;
+    var timer_deadline = null;
+    // var timer_deadline = new Date("2023-12-31T23:59:59").getTime();
+    function pad(d) {
+      return (d < 10) ? '0' + d.toString() : d.toString();
+    }
+    var x = setInterval(function() {
+      if (!running) {return;}
+
+      var now = new Date().getTime();
+      var t = timer_deadline - now;
+      var days = Math.floor(t / (1000 * 60 * 60 * 24));
+      var hours = Math.floor((t%(1000 * 60 * 60 * 24))/(1000 * 60 * 60));
+      var minutes = Math.floor((t % (1000 * 60 * 60)) / (1000 * 60));
+      var seconds = Math.floor((t % (1000 * 60)) / 1000);
+      $("#timer_days").html(pad(days));
+      $("#timer_hours").html(pad(hours));
+      $("#timer_minutes").html(pad(minutes));
+      $("#timer_seconds").html(pad(seconds));
+      if (t < 0) {
+        clearInterval(x);
+        // document.getElementById("demo").innerHTML = "TIME UP";
+        $("#timer_days").html("00");
+        $("#timer_hours").html("00");
+        $("#timer_minutes").html("00");
+        $("#timer_seconds").html("00");
+      }
+    }, 1000);
+
+    function start_timer(deadline) {
+      timer_deadline = new Date(deadline).getTime();
+      running = true;
+    }
     //]]>
   </script>
 
@@ -103,16 +167,14 @@
 
       if (message_event == "timer_stop") {
         console.log('timer_stop');
+        running = false;
         return;
       }
 
-      if (message_event == "timer_start") {
-        console.log('timer_stop');
-        return;
-      }
-
-      if (message_event == "game_start") {
-        console.log('timer_stop');
+      if (message_event == "start_game") {
+        var deadline = message['data']['deadline'];
+        console.log(deadline);
+        start_timer(deadline);
         return;
       }
     }
@@ -134,7 +196,7 @@
 
     // Send a message to the websocket
     const contact_manager = () => {
-      socket.send("room ok");
+      socket.send("room ok");  // TODO BUG this turns back to client
     }
 
     // Listen for messages

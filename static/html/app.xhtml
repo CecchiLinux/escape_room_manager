@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="static/css/reset.css" type="text/css" />
     <link rel="stylesheet" href="static/css/style.css?r=1" type="text/css" />
     <script type="text/javascript" src="static/js/jquery.js"></script>
-    <script type="text/javascript" src="static/js/app.js?r=1"></script>
+    <script type="text/javascript" src="static/js/app.js?r=1.0"></script>
   </head>
   
   <body>
@@ -20,6 +20,7 @@
             <button>Suono di allerta</button>
             <button>Mostra video apertura</button>
             <button>Video stanza completata</button>
+            <button id="start_game">Avvia Gioco</button>
           </div>
         </div>
       </div>
@@ -29,24 +30,6 @@
             <h2>Tempo rimanente</h2>
           </div>
           <div class="container centered" style="">
-            <div id="clockdiv">
-              <div style="display:none">
-                <span class="days" id="day"></span>
-                <div class="smalltext">Days</div>
-              </div>
-              <div>
-                <span class="hours" id="hour"></span>
-                <div class="smalltext">Ore</div>
-              </div>
-              <div>
-                <span class="minutes" id="minute"></span>
-                <div class="smalltext">Minuti</div>
-              </div>
-              <div>
-                <span class="seconds" id="second"></span>
-                <div class="smalltext">Secondi</div>
-              </div>
-            </div>
           </div>
           <div class="container right" style="">
             <button id="timer_start">Start</button>
@@ -87,36 +70,5 @@
         </div>
       </div>
     </div>
-    <div id="results"></div>
-
-
-    <p id="demo"></p>
-
-    <script>
-
-    var deadline = new Date("dec 31, 2023 23:59:59").getTime();
-
-    var x = setInterval(function() {
-
-    var now = new Date().getTime();
-    var t = deadline - now;
-    var days = Math.floor(t / (1000 * 60 * 60 * 24));
-    var hours = Math.floor((t%(1000 * 60 * 60 * 24))/(1000 * 60 * 60));
-    var minutes = Math.floor((t % (1000 * 60 * 60)) / (1000 * 60));
-    var seconds = Math.floor((t % (1000 * 60)) / 1000);
-    document.getElementById("day").innerHTML =days ;
-    document.getElementById("hour").innerHTML =hours;
-    document.getElementById("minute").innerHTML = minutes;
-    document.getElementById("second").innerHTML =seconds;
-    if (t < 0) {
-        clearInterval(x);
-        document.getElementById("demo").innerHTML = "TIME UP";
-        document.getElementById("day").innerHTML ='0';
-        document.getElementById("hour").innerHTML ='0';
-        document.getElementById("minute").innerHTML ='0' ;
-        document.getElementById("second").innerHTML = '0'; }
-    }, 1000);
-    </script>
-
   </body>
 </html>
