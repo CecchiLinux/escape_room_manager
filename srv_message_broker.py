@@ -1,3 +1,4 @@
+import json
 import asyncio
 import websockets
 
@@ -24,11 +25,14 @@ async def echo_broadcast(websocket, path):
           print('recipient confirmed')
         else:
           print('broker replying to the sender')
-          await conn.send('ok')
+          _d = {'event': 'broker_confirm', 'data': {}, 'sender': 'broker'}
+          await conn.send(json.dumps(_d))
           print('sender confirmed')
+  except Exception:
+    pass
   finally:
-    # unregister
-    connected.remove(websocket)
+    # connected.remove(websocket)  # unregister
+    pass
 
 
 # async def echo(websocket):

@@ -25,7 +25,7 @@ WEBSOCKET_SERVER_LOCAL = 'ws://localhost:5000'
 
 
 async def wait_room_reply(ws):
-  response = await ws.recv()  # wait for client
+  response = await ws.recv()  # wait for room confirmation
   return response
 
 
@@ -35,22 +35,21 @@ async def event(message):
     print(f'send message to broker: {message}')
     await ws.send(message)
     print('broker confirmed')
-    res = await ws.recv()
+    res = await ws.recv()  # await reply from broker
     print(f'message from broker: {res}')
     try:
-      res = await asyncio.wait_for(wait_room_reply(ws), timeout=COMM_ROOM_TIMEOUT)
-      # response = await ws.recv()  # wait for client
+      res = await asyncio.wait_for(wait_room_reply(ws), timeout=COMM_ROOM_TIMEOUT)  # await reply from room
       print(f'message from room: {res}')
     except asyncio.exceptions.TimeoutError as exc:
-      print('timeout!')
       log_error(str(exc))
-      print('can\'t communicate with the room')
+      print('room timeout! Can\'t communicate with the room')
     print('exit')
  
 
-def send_event(data):
+def send_event(event_name, data):
+  _d = {'event': event_name, 'data': data, 'sender': 'manager', 'timestamp': ''}
   try:
-    asyncio.get_event_loop().run_until_complete(event(data))
+    asyncio.get_event_loop().run_until_complete(event(_d))
   except Exception as exc:
     log_error(str(exc))
     # raise ss
@@ -73,25 +72,21 @@ class SendEvent(Resource):
     res = -1
     if name == b'text_to_room':
       _text = request.args[b'text'][0].decode()
-      _d = {'event': 'text_to_room', 'data': {'text': _text}, 'timestamp': ''}
-      res = send_event(_d)
+      res = send_event('text_to_room', {'text': _text})
 
     if name == b'timer_start':
       game_timer.start()
       deadline = game_timer.get_game_end()
-      _d = {'event': 'start_game', 'data': {'deadline': deadline}, 'timestamp': ''}
-      res = send_event(_d)
+      res = send_event('start_game', {'deadline': deadline})
 
     if name == b'timer_stop':
       game_timer.stop()
-      _d = {'event': 'timer_stop', 'data': {}, 'timestamp': ''}
-      res = send_event(_d)
+      res = send_event('timer_stop', {})
 
     if name == b'start_game':
       game_timer.first_start()
       deadline = game_timer.get_game_end()
-      _d = {'event': 'start_game', 'data': {'deadline': deadline}, 'timestamp': ''}
-      res = send_event(_d)
+      res = send_event('start_game', {'deadline': deadline})
 
     if res == -1:
       log_error("cannot contact the broker")

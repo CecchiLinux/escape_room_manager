@@ -28,7 +28,8 @@
       font-size: 120px;
     }
     .text_container {
-      width: 900px;
+      // width: 900px;
+      width: 1200px;
     }
     .text_container .jtextfill {
       max-height: 500px;
@@ -86,8 +87,13 @@
     //------------------------------------
     var text_index = 0;
     var text_global = "Welcome"
-    var text_speed = 220;
+    var text_speed_min = 150;
+    var text_speed_max = 220;
     var text_size = 80;
+
+    function get_random_number(min, max) {
+        return Math.random() * (max - min) + min;
+    }
 
     function type_writer() {
       if (text_index < text_global.length) {
@@ -95,7 +101,7 @@
         $("#text_element").html(current + text_global.charAt(text_index));
         text_index++;
         $('.jtextfill').textfill({debug: false, maxFontPixels: text_size});
-        setTimeout(type_writer, text_speed);
+        setTimeout(type_writer, get_random_number(text_speed_min, text_speed_max));
       }
     }
 
@@ -157,6 +163,10 @@
     //------------------------------------
     function map_and_run_event(event) {
       var message = JSON.parse(event.data);
+      if (message["sender"] != "manager") {
+        console.log("not manager message: " + event.data);
+        return -1;
+      }
       var message_event = message['event'];
       if (message_event == "text_to_room") {
         var text = message['data']['text'];
@@ -196,14 +206,16 @@
 
     // Send a message to the websocket
     const contact_manager = () => {
-      socket.send("room ok");  // TODO BUG this turns back to client
+      socket.send("room ok");
     }
 
     // Listen for messages
     socket.addEventListener('message', function (event) {
       console.log(event.data);
-      map_and_run_event(event);
-      contact_manager()
+      var res = map_and_run_event(event);
+      if (res != -1) {  // manager is not waiting reply
+        contact_manager();
+      }
     });
 
     //]]>
