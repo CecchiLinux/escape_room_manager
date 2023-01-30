@@ -68,8 +68,23 @@ WINDOW_NAME = 'Escape Room Manager'
 
 class SendEvent(Resource):
 
+  reply = b''
+
+  def render_POST(self, request):
+    return self.reply
+
+  def render_GET(self, request):
+    return self.render_POST(request)
+
   def getChild(self, name, request):
+    self.reply = b''
     res = -1
+    if name == b'ping_broker':
+      res = send_event('ping_broker', {})
+      if res == -1:
+        self.reply = b'error'
+        return self
+
     if name == b'text_to_room':
       _text = request.args[b'text'][0].decode()
       res = send_event('text_to_room', {'text': _text})
@@ -89,17 +104,11 @@ class SendEvent(Resource):
       res = send_event('start_game', {'deadline': deadline})
 
     if res == -1:
-      log_error("cannot contact the broker")
-      return Resource()  # maybe return self
-    return Resource()  # maybe return self
-
-  def render_POST(self, request):
-    _at = request.prepath 
-    output = f'Hello, world! I am located at {_at}.'
-    return output.encode('utf8')
-
-  def render_GET(self, request):
-    return self.render_POST(request)
+      log_error('cannot contact broker')
+      self.reply = b'cannot contact broker'
+    else:
+      self.reply = b'ok'
+    return self
 
 
 class Html(Resource):

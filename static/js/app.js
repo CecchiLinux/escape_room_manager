@@ -28,4 +28,9 @@ $(document).ready(function() {
       console.log('ok');
     });
   });
+  // var x = setInterval(function() {
+  //   $.post('/event/ping_broker', {}, function(data) {
+  //     console.log(data);
+  //   });
+  // }, 5000);
 });
