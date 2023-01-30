@@ -30,6 +30,12 @@ button:hover {
   color: black; 
   border: 2px solid #bd5734;
 }
+button.disabled {
+  border: 1px solid #999999;
+  background-color: darkgrey;
+  color: #fff;
+  cursor: not-allowed;
+}
 textarea {  
   font-family: sans-serif;
   font-weight: 100;

@@ -3,19 +3,22 @@ $(document).ready(function() {
   $(document).on('click', '#timer_start', function(event) {
     $.post('/event/timer_start', {}, function(data) {
       console.log('timer_stop ok');
-      // TODO disable start
+      $("#timer_start").addClass("disabled");
+      $("#timer_stop").removeClass("disabled");
     });
   });
   $(document).on('click', '#timer_stop', function(event) {
     $.post('/event/timer_stop', {}, function(data) {
       console.log('timer_stop ok');
-      // TODO disable stop
+      $("#timer_stop").addClass("disabled");
+      $("#timer_start").removeClass("disabled");
     });
   });
   $(document).on('click', '#start_game', function(event) {
     $.post('/event/start_game', {}, function(data) {
       console.log('start_game ok');
-      // TODO enable stop
+      $("#timer_stop").removeClass("disabled");
+      $("#start_game").addClass("disabled");
     });
   });
   $(document).on('click', '#send_text_to_room', function(event) {

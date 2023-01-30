@@ -4,7 +4,7 @@
     <title>Escape Room - Game Control</title>
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="static/css/reset.css" type="text/css" />
-    <link rel="stylesheet" href="static/css/style.css?r=1" type="text/css" />
+    <link rel="stylesheet" href="static/css/style.css?r=1.1" type="text/css" />
     <script type="text/javascript" src="static/js/jquery.js"></script>
     <script type="text/javascript" src="static/js/app.js?r=1.0"></script>
   </head>
@@ -19,7 +19,7 @@
           <div class="container right" style="">
             <button>Suono di allerta</button>
             <button>Mostra video apertura</button>
-            <button>Video stanza completata</button>
+            <button class="disabled">Video stanza completata</button>
             <button id="start_game">Avvia Gioco</button>
           </div>
         </div>
@@ -32,8 +32,8 @@
           <div class="container centered" style="">
           </div>
           <div class="container right" style="">
-            <button id="timer_start">Start</button>
-            <button id="timer_stop">Stop</button>
+            <button id="timer_start" class="disabled">Start</button>
+            <button id="timer_stop" class="disabled">Stop</button>
           </div>
         </div>
         <div class="item bordered" style="">
