@@ -15,13 +15,16 @@ import asyncio
 import websockets
 
 
-COMM_ROOM_TIMEOUT = 2
 WEBSOCKET_SERVER_LOCAL = 'ws://localhost:5000'
 
 #######################################################
 # ## communication to the rooms
 #
 #####################################################
+
+COMM_ROOM_TIMEOUT = 2
+COMM_ERR_GENERIC = -10
+COMM_ERR_TIMEOUT = -20
 
 
 async def wait_room_reply(ws):
@@ -30,19 +33,24 @@ async def wait_room_reply(ws):
 
 
 async def event(message):
+  '''
+    - create a connection to the broker
+    - wait for broker confirm
+    - wait for a single room confirm (timeout)
+    - close the connection
+  '''
   async with websockets.connect(WEBSOCKET_SERVER_LOCAL) as ws:
     message = json.dumps(message)
     print(f'send message to broker: {message}')
     await ws.send(message)
-    print('broker confirmed')
+    # print('broker confirmed')
     res = await ws.recv()  # await reply from broker
     print(f'message from broker: {res}')
     try:
       res = await asyncio.wait_for(wait_room_reply(ws), timeout=COMM_ROOM_TIMEOUT)  # await reply from room
       print(f'message from room: {res}')
     except asyncio.exceptions.TimeoutError as exc:
-      log_error(str(exc))
-      print('room timeout! Can\'t communicate with the room')
+      raise exc
     print('exit')
  
 
@@ -50,10 +58,14 @@ def send_event(event_name, data):
   _d = {'event': event_name, 'data': data, 'sender': 'manager', 'timestamp': ''}
   try:
     asyncio.get_event_loop().run_until_complete(event(_d))
+  except asyncio.exceptions.TimeoutError as exc:
+    log_error(str(exc))
+    return COMM_ERR_TIMEOUT
   except Exception as exc:
+    print('room timeout! Can\'t communicate with the room')
     log_error(str(exc))
     # raise ss
-    return -1
+    return COMM_ERR_GENERIC
 
 
 ########################################################
@@ -79,11 +91,8 @@ class SendEvent(Resource):
   def getChild(self, name, request):
     self.reply = b''
     res = -1
-    if name == b'ping_broker':
-      res = send_event('ping_broker', {})
-      if res == -1:
-        self.reply = b'error'
-        return self
+    if name == b'ping_room':
+      res = send_event('ping_room', {})
 
     if name == b'text_to_room':
       _text = request.args[b'text'][0].decode()
@@ -103,9 +112,10 @@ class SendEvent(Resource):
       deadline = game_timer.get_game_end()
       res = send_event('start_game', {'deadline': deadline})
 
-    if res == -1:
-      log_error('cannot contact broker')
-      self.reply = b'cannot contact broker'
+    if res < 0:
+      # log_error('cannot contact broker')
+      print(res)
+      self.reply = b'cannot contact room'
     else:
       self.reply = b'ok'
     return self
@@ -127,8 +137,10 @@ def load_settings():
 settings = load_settings()
 game_timer = Timer(settings['game_minutes'])
 
+_path = os.path.dirname(os.path.realpath(__file__))
+_path = os.path.join(_path, '')  # adding '/' or '\'
 proc = Popen(
-    ['python3', '%s/window.py' % os.path.dirname(os.path.realpath(__file__)), URL_BASE, str(PORT), WINDOW_NAME],
+    ['python3', '%swindow.py' % _path, URL_BASE, str(PORT), WINDOW_NAME],
     shell=False,
     stdin=None,
     stdout=None,

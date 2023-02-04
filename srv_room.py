@@ -29,8 +29,10 @@ class Html(Resource):
 
 def main():
   if OPEN_IN_WINDOW:
+    _path = os.path.dirname(os.path.realpath(__file__))
+    _path = os.path.join(_path, '')  # adding '/' or '\'
     proc = Popen(
-        ['python3', '%s/window.py' % os.path.dirname(os.path.realpath(__file__)), URL_BASE, str(PORT), WINDOW_NAME],
+        ['python3', '%swindow.py' % _path, URL_BASE, str(PORT), WINDOW_NAME],
         shell=False,
         stdin=None,
         stdout=None,

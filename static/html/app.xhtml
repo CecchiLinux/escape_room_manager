@@ -69,6 +69,28 @@
           </div>
         </div>
       </div>
+      <div class="container" style="">
+        <div class="item bordered" style="">
+          <div class="container centered title" style="">
+            <h2>Stato connessione</h2>
+          </div>
+          <div class="container" style="">
+            <span id="connection_state">BLACK</span>
+          </div>
+          <div class="container right" style="">
+            <script>
+              //<![CDATA[
+              $(document).on('click', '#test_room_connection', function(event) {
+                $.post('/event/ping_room', {'text': 'test'}, function(data) {
+                  console.log('ok');  // TODO
+                });
+              });
+              //]]>
+            </script>
+            <button id="test_room_connection">Test</button>
+          </div>
+        </div>
+      </div>
     </div>
   </body>
 </html>

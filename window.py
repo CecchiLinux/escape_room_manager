@@ -12,7 +12,7 @@ def init_window(url, port, name):
     os.kill(os.getppid(), signal.SIGTERM)
     window.destroy()
 
-  window.closing += on_closing
+  window.events.closing += on_closing
   webview.start()
 
 
