@@ -160,7 +160,7 @@ def kill_child_process():
   try:
     os.kill(proc.pid, signal.SIGTERM)
   except Exception:
-    pass
+    print("already closed")
 
 
 reactor.addSystemEventTrigger('before', 'shutdown', kill_child_process)

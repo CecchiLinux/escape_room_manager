@@ -9,11 +9,13 @@ def init_window(url, port, name):
   window = webview.create_window(name, '%s:%s' % (url, port,))
 
   def on_closing():
-    try:
-      os.kill(os.getppid(), signal.SIGTERM)
-    except Exception:
-      pass
-    # window.destroy()  # is not already destroyed?
+    if os.name == 'nt':
+      os.kill(os.getppid(), signal.CTRL_C_EVENT)
+      # window.destroy()
+      return
+
+    os.kill(os.getppid(), signal.SIGTERM)
+    window.destroy()
 
   window.events.closing += on_closing
   webview.start()

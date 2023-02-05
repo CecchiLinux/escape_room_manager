@@ -13,10 +13,11 @@ connected = set()
 async def echo_broadcast(websocket, path):
   # when room connects, this function add it to the connected (no messages to read)
   connected.add(websocket)  # register websocket (no duplicates, it's a set)
+  to_be_removed = []
   async for message in websocket:
     reply = f'broker recieved data as: {message}!'
     print(f'{reply}')
-    to_be_removed = []
+
     for conn in connected:
       try:
         if conn != websocket:  # don't get back to the sender

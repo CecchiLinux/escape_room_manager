@@ -49,7 +49,11 @@ def main():
   if OPEN_IN_WINDOW:
 
     def kill_child_process():
-      os.kill(proc.pid, signal.SIGTERM)
+      try:
+        os.kill(proc.pid, signal.SIGTERM)
+      except Exception:
+        print("already closed")
+
     reactor.addSystemEventTrigger('before', 'shutdown', kill_child_process)
 
   reactor.run()
