@@ -112,7 +112,7 @@ class SendEvent(Resource):
       deadline = game_timer.get_game_end()
       res = send_event('start_game', {'deadline': deadline})
 
-    if res < 0:
+    if res and res < 0:
       # log_error('cannot contact broker')
       print(res)
       self.reply = b'cannot contact room'
@@ -140,7 +140,7 @@ game_timer = Timer(settings['game_minutes'])
 _path = os.path.dirname(os.path.realpath(__file__))
 _path = os.path.join(_path, '')  # adding '/' or '\'
 proc = Popen(
-    ['python3', '%swindow.py' % _path, URL_BASE, str(PORT), WINDOW_NAME],
+    ['python', '%swindow.py' % _path, URL_BASE, str(PORT), WINDOW_NAME],
     shell=False,
     stdin=None,
     stdout=None,
@@ -157,7 +157,10 @@ reactor.listenTCP(PORT, factory)
 
 
 def kill_child_process():
-  os.kill(proc.pid, signal.SIGTERM)
+  try:
+    os.kill(proc.pid, signal.SIGTERM)
+  except Exception:
+    pass
 
 
 reactor.addSystemEventTrigger('before', 'shutdown', kill_child_process)

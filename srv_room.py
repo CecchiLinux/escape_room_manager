@@ -1,6 +1,6 @@
 import os
 import signal
-from subprocess import Popen
+from subprocess import Popen, PIPE, STDOUT
 from twisted.web.server import Site
 from twisted.web.resource import Resource
 from twisted.web.static import File
@@ -32,11 +32,11 @@ def main():
     _path = os.path.dirname(os.path.realpath(__file__))
     _path = os.path.join(_path, '')  # adding '/' or '\'
     proc = Popen(
-        ['python3', '%swindow.py' % _path, URL_BASE, str(PORT), WINDOW_NAME],
-        shell=False,
+        ['python', '%swindow.py' % _path, URL_BASE, str(PORT), WINDOW_NAME],
+        shell=True,
         stdin=None,
-        stdout=None,
-        stderr=None,
+        stdout=PIPE,
+        stderr=STDOUT,
         close_fds=True
     )
 

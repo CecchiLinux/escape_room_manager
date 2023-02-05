@@ -32,7 +32,10 @@ async def echo_broadcast(websocket, path):
         to_be_removed.append(conn)
 
   for conn in to_be_removed:
-    connected.remove(conn)  # unregister
+    try:
+      connected.remove(conn)  # unregister
+    except Exception:
+      pass
   print(connected)  # debug
   to_be_removed = []
 
