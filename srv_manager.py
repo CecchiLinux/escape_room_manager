@@ -1,3 +1,4 @@
+import sys
 import os
 import signal
 import json
@@ -137,31 +138,41 @@ def load_settings():
 settings = load_settings()
 game_timer = Timer(settings['game_minutes'])
 
-_path = os.path.dirname(os.path.realpath(__file__))
-_path = os.path.join(_path, '')  # adding '/' or '\'
-proc = Popen(
-    ['python', '%swindow.py' % _path, URL_BASE, str(PORT), WINDOW_NAME],
-    shell=False,
-    stdin=None,
-    stdout=None,
-    stderr=None,
-    close_fds=True
-)
 
-root = Resource()
-root.putChild(b'', Html())
-root.putChild(b'event', SendEvent())
-root.putChild(b'static', File('static'))
-factory = Site(root)
-reactor.listenTCP(PORT, factory)
+def main(start_broker):
+  _path = os.path.dirname(os.path.realpath(__file__))
+  _path = os.path.join(_path, '')  # adding '/' or '\'
+
+  def _spawn_proc(params):
+    return Popen(params, shell=False, stdin=None, stdout=None, stderr=None, close_fds=True)
+
+  proc_window = _spawn_proc(['python', '%swindow.py' % _path, URL_BASE, str(PORT), WINDOW_NAME])
+
+  if start_broker:
+    proc_broker = _spawn_proc(['python', '%ssrv_message_broker.py' % _path])
+
+  root = Resource()
+  root.putChild(b'', Html())
+  root.putChild(b'event', SendEvent())
+  root.putChild(b'static', File('static'))
+  factory = Site(root)
+  reactor.listenTCP(PORT, factory)
+
+  def kill_child_process():
+    def _kill_child_process(pid):
+      try:
+        os.kill(pid, signal.SIGTERM)
+      except Exception:
+        print("already closed")
+
+    _kill_child_process(proc_window.pid)
+    if start_broker:
+      _kill_child_process(proc_broker.pid)
+
+  reactor.addSystemEventTrigger('before', 'shutdown', kill_child_process)
+  reactor.run()
 
 
-def kill_child_process():
-  try:
-    os.kill(proc.pid, signal.SIGTERM)
-  except Exception:
-    print("already closed")
-
-
-reactor.addSystemEventTrigger('before', 'shutdown', kill_child_process)
-reactor.run()
+if __name__ == "__main__":
+  _, start_broker = sys.argv
+  main(int(start_broker))

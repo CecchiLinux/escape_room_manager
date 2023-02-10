@@ -79,6 +79,7 @@
         <span id="text_element">Benvenuti</span>
       </div>
     </div>
+
   </body>
    
   <script type="text/javascript">
@@ -110,6 +111,11 @@
       // document.getElementById('text_alert_sound').play();
       text_index = 0;
       text_global = text_to_write;
+      if (text_to_write == "") {
+        $("#clockdiv").css({"font-size": "130px"});
+      } else {
+        $("#clockdiv").css({"font-size": "30px"});
+      }
       $("#text_element").html("");
       console.log(text_global);
       type_writer();

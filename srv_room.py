@@ -33,10 +33,10 @@ def main():
     _path = os.path.join(_path, '')  # adding '/' or '\'
     proc = Popen(
         ['python', '%swindow.py' % _path, URL_BASE, str(PORT), WINDOW_NAME],
-        shell=True,
+        shell=False,
         stdin=None,
-        stdout=PIPE,
-        stderr=STDOUT,
+        stdout=None,
+        stderr=None,
         close_fds=True
     )
 
