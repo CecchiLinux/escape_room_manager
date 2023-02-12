@@ -60,12 +60,11 @@ def send_event(event_name, data):
   try:
     asyncio.get_event_loop().run_until_complete(event(_d))
   except asyncio.exceptions.TimeoutError as exc:
-    log_error(str(exc))
+    print(str(exc))
+    log_error('room timeout! Can\'t communicate with the room')
     return COMM_ERR_TIMEOUT
   except Exception as exc:
-    print('room timeout! Can\'t communicate with the room')
     log_error(str(exc))
-    # raise ss
     return COMM_ERR_GENERIC
 
 
@@ -84,13 +83,17 @@ class SendEvent(Resource):
   reply = b''
 
   def render_POST(self, request):
-    return self.reply
+    try:
+      res = self.reply.encode('utf-8')
+    except Exception:
+      res = self.reply
+    return res
 
   def render_GET(self, request):
     return self.render_POST(request)
 
   def getChild(self, name, request):
-    self.reply = b''
+    _reply = {'ok': ''}
     res = -1
     if name == b'ping_room':
       res = send_event('ping_room', {})
@@ -114,11 +117,12 @@ class SendEvent(Resource):
       res = send_event('start_game', {'deadline': deadline})
 
     if res and res < 0:
-      # log_error('cannot contact broker')
-      print(res)
-      self.reply = b'cannot contact room'
+      if res == COMM_ERR_TIMEOUT:
+        _reply = {'ko': 'cannot contact the room'}
     else:
-      self.reply = b'ok'
+      _reply = {'ok': ''}
+
+    self.reply = json.dumps(_reply)
     return self
 
 

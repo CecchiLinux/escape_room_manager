@@ -84,7 +84,12 @@
               //<![CDATA[
               $(document).on('click', '#test_room_connection', function(event) {
                 $.post('/event/ping_room', {'text': 'test'}, function(data) {
-                  console.log('ok');  // TODO
+                  data = JSON.parse(data);
+                  if (data['ko']) {
+                    $("#connection_state").html("RED");
+                    return;
+                  }
+                  $("#connection_state").html("GREEN");
                 });
               });
               //]]>
