@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="static/css/reset.css" type="text/css" />
     <link rel="stylesheet" href="static/css/style.css?r=1.1" type="text/css" />
     <script type="text/javascript" src="static/js/jquery.js"></script>
-    <script type="text/javascript" src="static/js/app.js?r=1"></script>
+    <script type="text/javascript" src="static/js/app.js?r=3"></script>
     <audio id="text_alert_sound" src="static/audio/mixkit-horror-bell-cartoon-transition-598.wav" preload="auto"></audio>
   </head>
   
@@ -15,49 +15,35 @@
       <div class="container" style="">
         <div class="item bordered" style="">
           <div class="container centered title" style="">
-            <h2>Comandi rapidi</h2>
+            <h2>Suoni e video</h2>
           </div>
-          <div class="container right" style="">
+          <div class="container" style="">
             <button>Suono di allerta</button>
             <button>Mostra video apertura</button>
             <button class="disabled">Video stanza completata</button>
-            <button id="start_game">Avvia Gioco</button>
+          </div>
+        </div>
+        <div style="width: 20%;">
+        </div>
+        <div class="item bordered" style="">
+          <div class="container centered title" style="">
+            <h2>Gestione Tempo</h2>
+          </div>
+          <div class="container right" style="">
+            <button id="start_game">Avvia Partita</button>
+          </div>
+          <div class="container right" style="">
+            <button id="timer_start" class="disabled">Play</button>
+            <button id="timer_stop" class="disabled">Pausa</button>
           </div>
         </div>
       </div>
       <div class="container" style="">
-        <div class="item bordered" style="">
-          <div class="container centered title" style="">
-            <h2>Tempo rimanente</h2>
-          </div>
-          <div class="container centered" style="">
-          </div>
-          <div class="container right" style="">
-            <button id="timer_start" class="disabled">Start</button>
-            <button id="timer_stop" class="disabled">Stop</button>
-          </div>
-        </div>
-        <div class="item bordered" style="">
-          <div class="container centered title" style="">
-            <h2>Concedi più tempo</h2>
-          </div>
-          <div class="container right" style="">
-            <button>Aggiorna</button>
-          </div>
-        </div>
-        <div class="item bordered" style="">
-          <div class="container centered title" style="">
-            <h2>Indizi</h2>
-          </div>
-          <div class="container right" style="">
-            <button>Invia</button>
-          </div>
-        </div>
       </div>
       <div class="container" style="">
         <div class="item bordered" style="">
           <div class="container centered title" style="">
-            <h2>Comunica con la stanza</h2>
+            <h2>Invia messaggio alla stanza</h2>
           </div>
           <!-- <div class="container" style=""> -->
             <!-- <textarea rows="4" cols="100"></textarea> -->
@@ -72,6 +58,8 @@
         </div>
       </div>
       <div class="container" style="">
+        <div class="item bordered" style="">
+        </div>
         <div class="item bordered" style="">
           <div class="container centered title" style="">
             <h2>Stato connessione</h2>

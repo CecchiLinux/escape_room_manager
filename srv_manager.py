@@ -106,21 +106,28 @@ class SendEvent(Resource):
       game_timer.start()
       deadline = game_timer.get_game_end()
       res = send_event('start_game', {'deadline': deadline})
+      if res and res < 0:
+        game_timer.stop()
 
     if name == b'timer_stop':
       game_timer.stop()
       res = send_event('timer_stop', {})
+      if res and res < 0:
+        game_timer.start()
 
     if name == b'start_game':
       game_timer.first_start()
       deadline = game_timer.get_game_end()
       res = send_event('start_game', {'deadline': deadline})
+      if res and res < 0:
+        game_timer.stop()
 
     if res and res < 0:
       if res == COMM_ERR_TIMEOUT:
         _reply = {'ko': 'cannot contact the room'}
+      _reply = {'ko': 'error'}
     else:
-      _reply = {'ok': ''}
+      _reply = {'ok': 'done'}
 
     self.reply = json.dumps(_reply)
     return self
