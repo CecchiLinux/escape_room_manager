@@ -33,6 +33,7 @@
       width: 1200px;
     }
     .text_container .jtextfill {
+      margin-top: 30px;
       max-height: 500px;
     }
     .text_container .jtextfill span {
@@ -89,7 +90,7 @@
     //------------------------------------
     var text_index = 0;
     var text_global = "Welcome"
-    var text_speed_min = 150;
+    var text_speed_min = 100;
     var text_speed_max = 220;
     var text_size = 80;
 
@@ -113,8 +114,8 @@
       text_global = text_to_write;
       if (text_to_write == "") {
         $("#clockdiv").css({"font-size": "130px"});
-      } else {
-        $("#clockdiv").css({"font-size": "30px"});
+      } else if (text_to_write.length > 30) {
+        $("#clockdiv").css({"font-size": "40px"});
       }
       $("#text_element").html("");
       console.log(text_global);

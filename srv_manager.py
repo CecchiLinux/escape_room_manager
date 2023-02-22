@@ -116,7 +116,8 @@ class SendEvent(Resource):
         game_timer.start()
 
     if name == b'start_game':
-      game_timer.first_start()
+      _minutes = int(request.args[b'minutes'][0].decode())
+      game_timer.first_start(_minutes)
       deadline = game_timer.get_game_end()
       res = send_event('start_game', {'deadline': deadline})
       if res and res < 0:

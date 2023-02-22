@@ -25,7 +25,12 @@ $(document).ready(function() {
     });
   });
   $(document).on('click', '#start_game', function(event) {
-    $.post('/event/start_game', {}, function(data) {
+    var game_minutes = Number(window.prompt("Quanti minuti deve durare il gioco?", "60"));
+    if(!game_minutes || game_minutes < 1) {
+      window.alert('Errore: hai inserito un numero da 1 a 120?');
+      return;
+    }
+    $.post('/event/start_game', {"minutes": game_minutes}, function(data) {
       var res = JSON.parse(data);
       if (res["ok"]) {
         console.log('start_game ok');
@@ -34,7 +39,7 @@ $(document).ready(function() {
       } else {
         $("#start_game").addClass("disabled");
         $("#timer_start").removeClass("disabled");
-        alert("Errore: comunicazione con la stanza assente");
+        window.alert("Errore: comunicazione con la stanza assente");
       }
     });
   });
