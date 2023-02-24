@@ -51,12 +51,12 @@ textarea {
   border-radius: 5px;
 }
 .container.centered {
-  align-items:center;
-  justify-content:center;
+  align-items: center;
+  justify-content: center;
 }
 .container.right {
-  align-items:right;
-  justify-content:right;
+  align-items: right;
+  justify-content: right;
 }
 .item {
   margin: 5px;
@@ -69,6 +69,7 @@ textarea {
 }
 .title {
   border-bottom: solid 1px;
+  padding-left: 20px;
 }
 
 #text_to_room{
@@ -108,4 +109,14 @@ textarea {
 .smalltext {
   padding-top: 5px;
   font-size: 16px;
+}
+.ko_status {
+  color: red;
+  text-transform: uppercase;
+  font-size: 30px;
+}
+.ok_status {
+  color: green;
+  text-transform: uppercase;
+  font-size: 25px;
 }

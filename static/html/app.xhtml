@@ -4,86 +4,104 @@
     <title>Escape Room - Game Control</title>
     <meta charset="UTF-8" />
     <link rel="stylesheet" href="static/css/reset.css" type="text/css" />
-    <link rel="stylesheet" href="static/css/style.css?r=1.1" type="text/css" />
+    <link rel="stylesheet" href="static/css/style.css?r=1" type="text/css" />
     <script type="text/javascript" src="static/js/jquery.js"></script>
     <script type="text/javascript" src="static/js/app.js?r=3"></script>
     <audio id="text_alert_sound" src="static/audio/mixkit-horror-bell-cartoon-transition-598.wav" preload="auto"></audio>
+
+    <script>
+      //<![CDATA[
+      $(document).on('click', '#test_room_connection', function(event) {
+        $.post('/event/ping_room', {'text': 'test'}, function(data) {
+          data = JSON.parse(data);
+          if (data['ko']) {
+            $("#connection_state").html("STANZA NON CONNESSA");
+            $("#connection_state").removeClass("ok_status");
+            $("#connection_state").addClass("ko_status");
+            return;
+          }
+          $("#connection_state").html("Stanza OK");
+          $("#connection_state").removeClass("ko_status");
+          $("#connection_state").addClass("ok_status");
+        });
+      });
+      $(document).on('click', '#room_connection', function(event) {
+        $(".room_ready").css("visibility", "visible");
+          return;
+        $.post('/event/start_room', {}, function(data) {
+          data = JSON.parse(data);
+          if (data['ko']) {
+            $("#connection_state").html(data['ko']);
+            return;
+          }
+          // $("#connection_state").html(data['ok']);
+          $(".room_ready").css("visibility", "visible");
+          return;
+        });
+      });
+      //]]>
+    </script>
   </head>
   
   <body>
     <div style="margin:50px 100px;">
-      <div class="container" style="">
-        <div class="item bordered" style="">
-          <div class="container centered title" style="">
+      <div class="container">  <!-- ROW_1 -->
+        <div class="item bordered">  <!-- COL_1 -->
+          <div class="container title">
             <h2>Suoni e video</h2>
           </div>
-          <div class="container" style="">
+          <div class="container room_ready" style="visibility:hidden;">
             <button>Suono di allerta</button>
             <button>Mostra video apertura</button>
             <button class="disabled">Video stanza completata</button>
           </div>
         </div>
-        <div style="width: 10%;">
+        <div style="width: 10%;">  <!-- COL_2 -->
         </div>
-        <div class="item bordered" style="">
-          <div class="container centered title" style="">
+        <div class="item bordered">  <!-- COL_3 -->
+          <div class="container title">
             <h2>Gestione Tempo</h2>
           </div>
-          <div class="container right" style="">
+          <div class="container right room_ready" style="visibility:hidden;">
             <button id="start_game">Avvia Partita</button>
           </div>
-          <div class="container right" style="">
+          <div class="container right room_ready" style="visibility:hidden;">
             <button id="timer_start" class="disabled">Play</button>
             <button id="timer_stop" class="disabled">Pausa</button>
           </div>
         </div>
       </div>
-      <div class="container" style="">
+      <div class="container room_ready" style="visibility:hidden;">  <!-- ROW_2 -->
+        <p>...</p>
       </div>
-      <div class="container" style="">
-        <div class="item bordered" style="">
-          <div class="container centered title" style="">
+      <div class="container">  <!-- ROW_3 -->
+        <div class="item bordered">  <!-- COL_1 -->
+          <div class="container title">
             <h2>Invia messaggio alla stanza</h2>
           </div>
-          <!-- <div class="container" style=""> -->
-            <!-- <textarea rows="4" cols="100"></textarea> -->
-          <!-- </div> -->
-          <div class="container" style="">
+          <div class="container room_ready" style="visibility:hidden;">
             <input id="text_to_room" autocomplete="new-password" spellcheck="false"></input>
           </div>
-          <div class="container right" style="">
+          <div class="container right room_ready" style="visibility:hidden;">
             <button id="reset_text_to_room">Cancella</button>
             <button id="send_text_to_room">Invia</button>
           </div>
         </div>
       </div>
-      <div class="container" style="">
-        <div class="item bordered" style="">
-        </div>
-        <div class="item bordered" style="">
-          <div class="container centered title" style="">
-            <h2>Stato connessione</h2>
+      <div class="container">  <!-- ROW_4 -->
+        <div class="item bordered">  <!-- COL_1 -->
+          <div class="container title">
+            <h2>Connessione con la stanza</h2>
           </div>
-          <div class="container" style="">
-            <span id="connection_state">BLACK</span>
+          <div class="container">
+            <span id="connection_state" class="ko_status">STANZA NON CONNESSA</span>
           </div>
-          <div class="container right" style="">
-            <script>
-              //<![CDATA[
-              $(document).on('click', '#test_room_connection', function(event) {
-                $.post('/event/ping_room', {'text': 'test'}, function(data) {
-                  data = JSON.parse(data);
-                  if (data['ko']) {
-                    $("#connection_state").html("RED");
-                    return;
-                  }
-                  $("#connection_state").html("GREEN");
-                });
-              });
-              //]]>
-            </script>
+          <div class="container right">
+            <button id="room_connection">Avvia Stanza</button>
             <button id="test_room_connection">Test</button>
           </div>
+        </div>
+        <div style="width: 50%;">  <!-- COL_2 -->
         </div>
       </div>
     </div>
