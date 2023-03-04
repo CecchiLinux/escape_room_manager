@@ -2,6 +2,8 @@ import sys
 import os
 import signal
 import json
+from playsound import playsound
+import threading
 from subprocess import Popen
 from twisted.web.server import Site
 from twisted.web.resource import Resource
@@ -85,6 +87,10 @@ def _spawn_proc(params):
   return Popen(params, shell=False, stdin=None, stdout=None, stderr=None, close_fds=True)
 
 
+def _play_sound(sound):
+  return playsound('%s%s' % (_path, sound,))
+
+
 class SendEvent(Resource):
 
   reply = b''
@@ -114,6 +120,9 @@ class SendEvent(Resource):
     if name == b'text_to_room':
       ok_text = 'testo inviato alla stanza'
       _text = request.args[b'text'][0].decode()
+      if _text:
+        _th = threading.Thread(target=_play_sound, args=('static/audio/mixkit-horror-bell-cartoon-transition-598.wav',))
+        _th.start()
       res = send_event('text_to_room', {'text': _text})
 
     if name == b'timer_start':

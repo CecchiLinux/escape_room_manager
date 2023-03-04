@@ -6,3 +6,4 @@ vext.gi
 pyqtwebengine
 pywebview
 websockets
+playsound

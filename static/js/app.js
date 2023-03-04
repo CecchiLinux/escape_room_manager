@@ -61,7 +61,7 @@ $(document).ready(function() {
   });
   $(document).on('click', '#send_text_to_room', function(event) {
     var message_text = $('#text_to_room').val();
-    document.getElementById('text_alert_sound').play();
+    // document.getElementById('text_alert_sound').play();
     $.post('/event/text_to_room', {'text': message_text}, function(data) {
       var res = JSON.parse(data);
       connection_state_message(res);
