@@ -6,39 +6,11 @@
     <link rel="stylesheet" href="static/css/reset.css" type="text/css" />
     <link rel="stylesheet" href="static/css/style.css?r=1" type="text/css" />
     <script type="text/javascript" src="static/js/jquery.js"></script>
-    <script type="text/javascript" src="static/js/app.js?r=3"></script>
+    <script type="text/javascript" src="static/js/app.js?r=4"></script>
     <audio id="text_alert_sound" src="static/audio/mixkit-horror-bell-cartoon-transition-598.wav" preload="auto"></audio>
 
     <script>
       //<![CDATA[
-      $(document).on('click', '#test_room_connection', function(event) {
-        $.post('/event/ping_room', {'text': 'test'}, function(data) {
-          data = JSON.parse(data);
-          if (data['ko']) {
-            $("#connection_state").html("STANZA NON CONNESSA");
-            $("#connection_state").removeClass("ok_status");
-            $("#connection_state").addClass("ko_status");
-            return;
-          }
-          $("#connection_state").html("Stanza OK");
-          $("#connection_state").removeClass("ko_status");
-          $("#connection_state").addClass("ok_status");
-        });
-      });
-      $(document).on('click', '#room_connection', function(event) {
-        $(".room_ready").css("visibility", "visible");
-          return;
-        $.post('/event/start_room', {}, function(data) {
-          data = JSON.parse(data);
-          if (data['ko']) {
-            $("#connection_state").html(data['ko']);
-            return;
-          }
-          // $("#connection_state").html(data['ok']);
-          $(".room_ready").css("visibility", "visible");
-          return;
-        });
-      });
       //]]>
     </script>
   </head>
@@ -94,11 +66,11 @@
             <h2>Connessione con la stanza</h2>
           </div>
           <div class="container">
-            <span id="connection_state" class="ko_status">STANZA NON CONNESSA</span>
+            <span id="connection_state" class="ko_status">STANZA NON CONNESSA, AVVIARE NUOVA STANZA</span>
           </div>
           <div class="container right">
             <button id="room_connection">Avvia Stanza</button>
-            <button id="test_room_connection">Test</button>
+            <button id="test_room_connection">Test Manuale</button>
           </div>
         </div>
         <div style="width: 50%;">  <!-- COL_2 -->

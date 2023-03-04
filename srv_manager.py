@@ -77,6 +77,13 @@ URL_BASE = 'http://localhost'
 PORT = 8888
 WINDOW_NAME = 'Escape Room Manager'
 
+_path = os.path.dirname(os.path.realpath(__file__))
+_path = os.path.join(_path, '')  # adding '/' or '\'
+
+
+def _spawn_proc(params):
+  return Popen(params, shell=False, stdin=None, stdout=None, stderr=None, close_fds=True)
+
 
 class SendEvent(Resource):
 
@@ -92,43 +99,64 @@ class SendEvent(Resource):
   def render_GET(self, request):
     return self.render_POST(request)
 
+  def _is_a_failure(self, res):
+    if res and res < 0:
+      return True
+    return False
+
   def getChild(self, name, request):
-    _reply = {'ok': ''}
+    _reply = {}
     res = -1
+    ok_text = None
     if name == b'ping_room':
       res = send_event('ping_room', {})
 
     if name == b'text_to_room':
+      ok_text = 'testo inviato alla stanza'
       _text = request.args[b'text'][0].decode()
       res = send_event('text_to_room', {'text': _text})
 
     if name == b'timer_start':
+      ok_text = 'tempo avviato'
       game_timer.start()
       deadline = game_timer.get_game_end()
       res = send_event('start_game', {'deadline': deadline})
-      if res and res < 0:
+      if self._is_a_failure(res):
         game_timer.stop()
 
     if name == b'timer_stop':
+      ok_text = 'tempo fermato'
       game_timer.stop()
       res = send_event('timer_stop', {})
-      if res and res < 0:
+      if self._is_a_failure(res):
         game_timer.start()
 
     if name == b'start_game':
+      ok_text = 'partita avviata'
       _minutes = int(request.args[b'minutes'][0].decode())
       game_timer.first_start(_minutes)
       deadline = game_timer.get_game_end()
       res = send_event('start_game', {'deadline': deadline})
-      if res and res < 0:
+      if self._is_a_failure(res):
         game_timer.stop()
 
-    if res and res < 0:
-      if res == COMM_ERR_TIMEOUT:
-        _reply = {'ko': 'cannot contact the room'}
-      _reply = {'ko': 'error'}
-    else:
-      _reply = {'ok': 'done'}
+    if name == b'start_room':
+      # ## if there's alredy an acrive room, fail
+      res = send_event('ping_room', {})
+      if self._is_a_failure(res):
+        proc_room = _spawn_proc(['python', '%ssrv_room.py' % _path])
+        _reply = {'ok': 'stanza avviata'}
+      else:
+        _reply = {'ko': 'stanza già avviata, controlla tra le finestre aperte'}
+
+    if not _reply:  # if the reply was not already set
+      if self._is_a_failure(res):
+        if res == COMM_ERR_TIMEOUT:
+          _reply = {'ko': 'stanza non raggiungibile. 1.riavviare stanza; 2.timer stop; 3.timer start'}
+        else:
+          _reply = {'ko': 'errore'}
+      else:
+        _reply = {'ok': ok_text or 'comunicazione con stanza ok'}
 
     self.reply = json.dumps(_reply)
     return self
@@ -154,9 +182,6 @@ game_timer = Timer(settings['game_minutes'])
 def main(start_broker):
   _path = os.path.dirname(os.path.realpath(__file__))
   _path = os.path.join(_path, '')  # adding '/' or '\'
-
-  def _spawn_proc(params):
-    return Popen(params, shell=False, stdin=None, stdout=None, stderr=None, close_fds=True)
 
   proc_window = _spawn_proc(['python', '%swindow.py' % _path, URL_BASE, str(PORT), WINDOW_NAME])
 
