@@ -36,7 +36,7 @@ $(document).ready(function() {
   });
   $(document).on('click', '#start_game', function(event) {
     var game_minutes = Number(window.prompt("Quanti minuti deve durare il gioco?", "60"));
-    if(!game_minutes || game_minutes < 1) {
+    if(!game_minutes || game_minutes < 0) {
       window.alert('Errore: hai inserito un numero da 1 a 120?');
       return;
     }

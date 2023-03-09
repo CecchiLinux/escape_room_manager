@@ -2,8 +2,9 @@ import sys
 import os
 import signal
 import json
-from playsound import playsound
 import threading
+import requests
+from playsound import playsound
 from subprocess import Popen
 from twisted.web.server import Site
 from twisted.web.resource import Resource
@@ -157,6 +158,9 @@ class SendEvent(Resource):
         _reply = {'ok': 'stanza avviata'}
       else:
         _reply = {'ko': 'stanza già avviata, controlla tra le finestre aperte'}
+    
+    if name == b'finish_game':
+      pass  # XXX end actions
 
     if not _reply:  # if the reply was not already set
       if self._is_a_failure(res):
@@ -188,6 +192,17 @@ settings = load_settings()
 game_timer = Timer(settings['game_minutes'])
 
 
+def _check_game_ends():
+  if not game_timer.is_game_finished:
+    if game_timer.running:
+      if game_timer.get_time_left().total_seconds() <= 0:
+        game_timer.finish_game()
+        r = requests.get('http://localhost:8888/event/finish_game', verify=False)  # XXX
+        return
+    threading.Timer(5.0, _check_game_ends).start()
+
+
+
 def main(start_broker):
   _path = os.path.dirname(os.path.realpath(__file__))
   _path = os.path.join(_path, '')  # adding '/' or '\'
@@ -196,6 +211,8 @@ def main(start_broker):
 
   if start_broker:
     proc_broker = _spawn_proc(['python', '%ssrv_message_broker.py' % _path])
+  
+  _check_game_ends()
 
   root = Resource()
   root.putChild(b'', Html())
