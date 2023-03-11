@@ -11,6 +11,14 @@
 
     <script>
       //<![CDATA[
+        var x = setInterval(function() {
+          $.post('/event/is_game_finished', {}, function(data) {
+            var res = JSON.parse(data);
+            if (res["ok"]) {
+              console.log('timer_chesk ok');
+            }
+          });
+        }, 5000);
       //]]>
     </script>
   </head>

@@ -3,7 +3,6 @@ import os
 import signal
 import json
 import threading
-import requests
 from playsound import playsound
 from subprocess import Popen
 from twisted.web.server import Site
@@ -11,70 +10,10 @@ from twisted.web.resource import Resource
 from twisted.web.static import File
 from twisted.python.filepath import FilePath
 from twisted.internet import reactor
+from manager_websocket import send_event
+from manager_websocket import COMM_ERR_TIMEOUT
 from logger import log_info, log_error
 from timer import Timer
-
-# ## communication needs
-import asyncio
-import websockets
-
-
-WEBSOCKET_SERVER_LOCAL = 'ws://localhost:5000'
-
-#######################################################
-# ## communication to the rooms
-#
-#####################################################
-
-COMM_ROOM_TIMEOUT = 2
-COMM_ERR_GENERIC = -10
-COMM_ERR_TIMEOUT = -20
-
-
-async def wait_room_reply(ws):
-  response = await ws.recv()  # wait for room confirmation
-  return response
-
-
-async def event(message):
-  '''
-    - create a connection to the broker
-    - wait for broker confirm
-    - wait for a single room confirm (timeout)
-    - close the connection
-  '''
-  async with websockets.connect(WEBSOCKET_SERVER_LOCAL) as ws:
-    message = json.dumps(message)
-    print(f'send message to broker: {message}')
-    await ws.send(message)
-    # print('broker confirmed')
-    res = await ws.recv()  # await reply from broker
-    print(f'message from broker: {res}')
-    try:
-      res = await asyncio.wait_for(wait_room_reply(ws), timeout=COMM_ROOM_TIMEOUT)  # await reply from room
-      print(f'message from room: {res}')
-    except asyncio.exceptions.TimeoutError as exc:
-      raise exc
-    print('exit')
- 
-
-def send_event(event_name, data):
-  _d = {'event': event_name, 'data': data, 'sender': 'manager', 'timestamp': ''}
-  try:
-    asyncio.get_event_loop().run_until_complete(event(_d))
-  except asyncio.exceptions.TimeoutError as exc:
-    print(str(exc))
-    log_error('room timeout! Can\'t communicate with the room')
-    return COMM_ERR_TIMEOUT
-  except Exception as exc:
-    log_error(str(exc))
-    return COMM_ERR_GENERIC
-
-
-########################################################
-# ## Manager UI
-#
-######################################################
 
 URL_BASE = 'http://localhost'
 PORT = 8888
@@ -84,8 +23,24 @@ _path = os.path.dirname(os.path.realpath(__file__))
 _path = os.path.join(_path, '')  # adding '/' or '\'
 
 
+def load_settings():
+  return {
+      'game_minutes': 60,
+  }
+
+
+settings = load_settings()
+game_timer = Timer(settings['game_minutes'])
+
+
 def _spawn_proc(params):
   return Popen(params, shell=False, stdin=None, stdout=None, stderr=None, close_fds=True)
+
+
+########################################################
+# ## Control room UI
+#
+######################################################
 
 
 def _play_sound(sound):
@@ -162,6 +117,13 @@ class SendEvent(Resource):
     if name == b'finish_game':
       pass  # XXX end actions
 
+    if name == b'is_game_finished':
+      _reply = {'ok': 'gioco in corso', 'status': 'running'}
+      if game_timer.running:
+        if game_timer.get_time_left().total_seconds() <= 0:
+          _reply = {'ok': 'gioco finito', 'status': 'finished'}
+          pass  # XXX end actions
+
     if not _reply:  # if the reply was not already set
       if self._is_a_failure(res):
         if res == COMM_ERR_TIMEOUT:
@@ -182,27 +144,6 @@ class Html(Resource):
     return FilePath('static/html/app.xhtml').getContent()
 
 
-def load_settings():
-  return {
-      'game_minutes': 60,
-  }
-
-
-settings = load_settings()
-game_timer = Timer(settings['game_minutes'])
-
-
-def _check_game_ends():
-  if not game_timer.is_game_finished:
-    if game_timer.running:
-      if game_timer.get_time_left().total_seconds() <= 0:
-        game_timer.finish_game()
-        r = requests.get('http://localhost:8888/event/finish_game', verify=False)  # XXX
-        return
-    threading.Timer(5.0, _check_game_ends).start()
-
-
-
 def main(start_broker):
   _path = os.path.dirname(os.path.realpath(__file__))
   _path = os.path.join(_path, '')  # adding '/' or '\'
@@ -212,8 +153,6 @@ def main(start_broker):
   if start_broker:
     proc_broker = _spawn_proc(['python', '%ssrv_message_broker.py' % _path])
   
-  _check_game_ends()
-
   root = Resource()
   root.putChild(b'', Html())
   root.putChild(b'event', SendEvent())
@@ -227,7 +166,6 @@ def main(start_broker):
         os.kill(pid, signal.SIGTERM)
       except Exception:
         print("already closed")
-
     _kill_child_process(proc_window.pid)
     if start_broker:
       _kill_child_process(proc_broker.pid)
