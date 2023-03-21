@@ -68,6 +68,8 @@ class Timer():
     self.running = True
 
   def finish_game(self):
+    now = datetime.now()
+    log_info('game finished at: %s' % now.strftime("%Y-%m-%dT%H:%M:%S"))
     self.running = False
     self.game_start = None
     self.game_stop = None

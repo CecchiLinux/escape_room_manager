@@ -114,15 +114,13 @@ class SendEvent(Resource):
       else:
         _reply = {'ko': 'stanza già avviata, controlla tra le finestre aperte'}
     
-    if name == b'finish_game':
-      pass  # XXX end actions
-
     if name == b'is_game_finished':
       _reply = {'ok': 'gioco in corso', 'status': 'running'}
       if game_timer.running:
         if game_timer.get_time_left().total_seconds() <= 0:
           _reply = {'ok': 'gioco finito', 'status': 'finished'}
-          pass  # XXX end actions
+          game_timer.finish_game()
+          res = send_event('text_to_room', {'text': 'Tempo scaduto'})
 
     if not _reply:  # if the reply was not already set
       if self._is_a_failure(res):
