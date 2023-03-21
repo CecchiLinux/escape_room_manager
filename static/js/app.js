@@ -40,6 +40,7 @@ $(document).ready(function() {
       connection_state_message(res);
       if (res["ok"]) {
         $("#timer_stop").removeClass("disabled");
+        $("#game_success").removeClass("disabled");
         $("#start_game").addClass("disabled");
       } else {
         $("#start_game").addClass("disabled");

@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="static/css/reset.css" type="text/css" />
     <link rel="stylesheet" href="static/css/style.css?r=1" type="text/css" />
     <script type="text/javascript" src="static/js/jquery.js"></script>
-    <script type="text/javascript" src="static/js/app.js?r=5"></script>
+    <script type="text/javascript" src="static/js/app.js?r=6"></script>
     <!-- <audio id="text_alert_sound" src="static/audio/mixkit-horror-bell-cartoon-transition-598.wav" preload="auto"></audio> -->
 
     <script>
@@ -45,14 +45,26 @@
         });
         $(document).on('click', '#reset_game', function(event) {
           var res = window.confirm("Sei sicuro di voler resettare il gioco?");
-          if(!res) {
-            return;
-          }
+          if(!res) {return;}
           $.post('/event/reset_game', {}, function(data) {
             var res = JSON.parse(data);
             connection_state_message(res);
             if (res["ok"]) {
               $("#set_timer").removeClass("disabled");
+              $("#start_game").addClass("disabled");
+              $("#timer_start").addClass("disabled");
+              $("#timer_stop").addClass("disabled");
+            }
+          });
+        });
+
+        $(document).on('click', '#game_success', function(event) {
+          var res = window.confirm("La squadra ha vinto?");
+          if(!res) {return;}
+          $.post('/event/game_success', {}, function(data) {
+            var res = JSON.parse(data);
+            connection_state_message(res);
+            if (res["ok"]) {
               $("#start_game").addClass("disabled");
               $("#timer_start").addClass("disabled");
               $("#timer_stop").addClass("disabled");
@@ -71,9 +83,9 @@
             <h2>Suoni e video</h2>
           </div>
           <div class="container room_ready" style="visibility:hidden;">
-            <button>Suono di allerta</button>
-            <button>Mostra video apertura</button>
-            <button class="disabled">Video stanza completata</button>
+            <!-- <button>Suono di allerta</button> -->
+            <!-- <button>Mostra video apertura</button> -->
+            <button id="game_success" class="disabled">Stanza completata</button>
           </div>
         </div>
         <div style="width: 10%;">  <!-- COL_2 -->

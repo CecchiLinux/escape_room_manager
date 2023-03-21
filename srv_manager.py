@@ -26,6 +26,7 @@ _path = os.path.join(_path, '')  # adding '/' or '\'
 def load_settings():
   return {
       'game_minutes': 60,
+      'game_success_text': 'Congratulazioni, siete usciti dalla stanza!!!',
   }
 
 
@@ -73,6 +74,12 @@ class SendEvent(Resource):
     if name == b'ping_room':
       res = send_event('ping_room', {})
 
+    if name == b'game_success':
+      ok_text = 'vittoria!!!'
+      game_timer.stop()
+      res = send_event('timer_stop', {})
+      res = send_event('text_to_room', {'text': settings['game_success_text']})
+
     if name == b'reset_game':
       ok_text = 'gioco resettato'
       if game_timer.running:
@@ -80,6 +87,7 @@ class SendEvent(Resource):
         res = send_event('timer_stop', {})
       game_timer.reset()
       res = send_event('set_timer', {'minutes': 0})
+      res = send_event('text_to_room', {'text': 'Benvenuti'})
 
     if name == b'text_to_room':
       ok_text = 'testo inviato alla stanza'
