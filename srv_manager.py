@@ -73,6 +73,14 @@ class SendEvent(Resource):
     if name == b'ping_room':
       res = send_event('ping_room', {})
 
+    if name == b'reset_game':
+      ok_text = 'gioco resettato'
+      if game_timer.running:
+        game_timer.stop()
+        res = send_event('timer_stop', {})
+      game_timer.reset()
+      res = send_event('set_timer', {'minutes': 0})
+
     if name == b'text_to_room':
       ok_text = 'testo inviato alla stanza'
       _text = request.args[b'text'][0].decode()
