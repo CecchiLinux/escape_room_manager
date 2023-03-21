@@ -32,7 +32,7 @@ class Timer():
     log_info('time left: %s' % time_left)
     return time_left
 
-  def first_start(self, minutes=None):
+  def first_start(self, minutes=None, false_start=False):
     assert not self.game_start
     if minutes:
       self.set_minutes(minutes)
@@ -41,8 +41,10 @@ class Timer():
     game_ends_at = now + timedelta(minutes=self.minutes)  # calculate the end, add minutes
     str_ends = game_ends_at.strftime("%Y-%m-%dT%H:%M:%S")
     log_info('game ends at: %s' % str_ends)
-    self.game_start = now
-    self.running = True
+
+    if not false_start:
+      self.game_start = now
+      self.running = True
      
   def stop(self):
     assert self.running

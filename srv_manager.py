@@ -98,12 +98,17 @@ class SendEvent(Resource):
 
     if name == b'start_game':
       ok_text = 'partita avviata'
-      _minutes = int(request.args[b'minutes'][0].decode())
-      game_timer.first_start(_minutes)
+      game_timer.first_start()
       deadline = game_timer.get_game_end()
       res = send_event('start_game', {'deadline': deadline})
       if self._is_a_failure(res):
         game_timer.stop()
+
+    if name == b'set_timer':
+      ok_text = 'timer impostato'
+      _minutes = int(request.args[b'minutes'][0].decode())
+      game_timer.first_start(_minutes, false_start=True)
+      res = send_event('set_timer', {'minutes': _minutes})
 
     if name == b'start_room':
       # ## if there's alredy an acrive room, fail

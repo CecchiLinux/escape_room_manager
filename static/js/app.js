@@ -35,12 +35,7 @@ $(document).ready(function() {
     });
   });
   $(document).on('click', '#start_game', function(event) {
-    var game_minutes = Number(window.prompt("Quanti minuti deve durare il gioco?", "60"));
-    if(!game_minutes || game_minutes < 0) {
-      window.alert('Errore: hai inserito un numero da 1 a 120?');
-      return;
-    }
-    $.post('/event/start_game', {"minutes": game_minutes}, function(data) {
+    $.post('/event/start_game', {}, function(data) {
       var res = JSON.parse(data);
       connection_state_message(res);
       if (res["ok"]) {

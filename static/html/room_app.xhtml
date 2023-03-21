@@ -14,7 +14,6 @@
       background: #000;
       color: #fff;
       font-family: sans-serif;
-      // font-weight: 100;
     }
     .text_center {
       margin: 0;
@@ -29,7 +28,6 @@
       font-size: 120px;
     }
     .text_container {
-      // width: 900px;
       width: 1200px;
     }
     .text_container .jtextfill {
@@ -135,19 +133,23 @@
     function pad(d) {
       return (d < 10) ? '0' + d.toString() : d.toString();
     }
+
+    function write_time(days, hours, minutes, seconds) {
+      $("#timer_days").html(pad(days));
+      $("#timer_hours").html(pad(hours));
+      $("#timer_minutes").html(pad(minutes));
+      $("#timer_seconds").html(pad(seconds));
+    }
+
     var x = setInterval(function() {
       if (!running) {return;}
-
       var now = new Date().getTime();
       var t = timer_deadline - now;
       var days = Math.floor(t / (1000 * 60 * 60 * 24));
       var hours = Math.floor((t%(1000 * 60 * 60 * 24))/(1000 * 60 * 60));
       var minutes = Math.floor((t % (1000 * 60 * 60)) / (1000 * 60));
       var seconds = Math.floor((t % (1000 * 60)) / 1000);
-      $("#timer_days").html(pad(days));
-      $("#timer_hours").html(pad(hours));
-      $("#timer_minutes").html(pad(minutes));
-      $("#timer_seconds").html(pad(seconds));
+      write_time(days, hours, minutes, seconds);
       if (t < 0) {
         clearInterval(x);
         // document.getElementById("demo").innerHTML = "TIME UP";
@@ -158,9 +160,22 @@
       }
     }, 1000);
 
-    function start_timer(deadline) {
+    function start_timer(deadline, false_start) {
       timer_deadline = new Date(deadline).getTime();
-      running = true;
+      running = !false_start;
+    }
+    
+    function set_timer(minutes, false_start) {
+      var n = minutes * 60;
+      var days = parseInt(n / (24 * 3600));
+      n = n % (24 * 3600);
+      var hours = parseInt(n / 3600);
+      n %= 3600;
+      var minutes = n / 60;
+      n %= 60;
+      var seconds = n;
+      write_time(days, hours, minutes, seconds);
+      running = !false_start;
     }
     //]]>
   </script>
@@ -192,8 +207,13 @@
 
       if (message_event == "start_game") {
         var deadline = message['data']['deadline'];
-        console.log(deadline);
-        start_timer(deadline);
+        start_timer(deadline, false);
+        return;
+      }
+
+      if (message_event == "set_timer") {
+        var minutes = message['data']['minutes'];
+        set_timer(minutes, true);
         return;
       }
     }

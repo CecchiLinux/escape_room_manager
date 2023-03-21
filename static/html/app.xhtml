@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="static/css/reset.css" type="text/css" />
     <link rel="stylesheet" href="static/css/style.css?r=1" type="text/css" />
     <script type="text/javascript" src="static/js/jquery.js"></script>
-    <script type="text/javascript" src="static/js/app.js?r=4"></script>
+    <script type="text/javascript" src="static/js/app.js?r=5"></script>
     <!-- <audio id="text_alert_sound" src="static/audio/mixkit-horror-bell-cartoon-transition-598.wav" preload="auto"></audio> -->
 
     <script>
@@ -24,6 +24,25 @@
             }
           });
         }, 2000);
+
+        $(document).on('click', '#set_timer', function(event) {
+          var game_minutes = Number(window.prompt("Quanti minuti deve durare il gioco?", "60"));
+          if(!game_minutes || game_minutes < 0) {
+            window.alert('Errore: hai inserito un numero da 1 a 120?');
+            return;
+          }
+          $.post('/event/set_timer', {"minutes": game_minutes}, function(data) {
+            var res = JSON.parse(data);
+            connection_state_message(res);
+            if (res["ok"]) {
+              $("#start_game").removeClass("disabled");
+              $("#set_timer").addClass("disabled");
+            } else {
+              $("#start_game").addClass("disabled");
+              $("#set_timer").removeClass("disabled");
+            }
+          });
+        });
       //]]>
     </script>
   </head>
@@ -48,7 +67,8 @@
             <h2>Gestione Tempo</h2>
           </div>
           <div class="container right room_ready" style="visibility:hidden;">
-            <button id="start_game">Avvia Partita</button>
+            <button id="set_timer">Imposta tempo</button>
+            <button id="start_game" class="disabled">Avvia Partita</button>
           </div>
           <div class="container right room_ready" style="visibility:hidden;">
             <button id="timer_start" class="disabled">Play</button>
