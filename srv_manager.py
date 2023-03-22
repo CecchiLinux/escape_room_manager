@@ -26,7 +26,20 @@ _path = os.path.join(_path, '')  # adding '/' or '\'
 def load_settings():
   return {
       'game_minutes': 60,
+      'text_to_room_audio': 'static/audio/mixkit-horror-bell-cartoon-transition-598.wav',
+      'ok_messages': {
+          'game_success': 'vittoria!!!',
+          'reset_game': 'gioco resettato',
+          'text_to_room': 'testo inviato alla stanza',
+          'timer_start': 'tempo avviato',
+          'timer_stop': 'tempo fermato',
+          'start_game': 'partita avviata',
+          'set_timer': 'timer impostato',
+      },
       'game_success_text': 'Congratulazioni, siete usciti dalla stanza!!!',
+      'ko_room_connection_text': 'stanza non raggiungibile. 1.riavviare stanza; 2.timer stop; 3.timer start',
+      'ko_generic_text': 'errore',
+      'ok_room_connection_text': 'comunicazione con stanza ok',
   }
 
 
@@ -67,38 +80,38 @@ class SendEvent(Resource):
       return True
     return False
 
+  def _maybe_stop_timer(self):
+    if game_timer.running:
+      game_timer.stop()
+      return send_event('timer_stop', {})
+
   def getChild(self, name, request):
     _reply = {}
-    res = -1
-    ok_text = None
+    res = -1  # failure as default
+    ok_text = settings['ok_messages'].get(name.decode('utf-8'), '')
+    ko_text = ''
+
     if name == b'ping_room':
       res = send_event('ping_room', {})
 
     if name == b'game_success':
-      ok_text = 'vittoria!!!'
-      game_timer.stop()
-      res = send_event('timer_stop', {})
+      res = self._maybe_stop_timer()
       res = send_event('text_to_room', {'text': settings['game_success_text']})
 
     if name == b'reset_game':
-      ok_text = 'gioco resettato'
-      if game_timer.running:
-        game_timer.stop()
-        res = send_event('timer_stop', {})
+      res = self._maybe_stop_timer()
       game_timer.reset()
       res = send_event('set_timer', {'minutes': 0})
       res = send_event('text_to_room', {'text': 'Benvenuti'})
 
     if name == b'text_to_room':
-      ok_text = 'testo inviato alla stanza'
       _text = request.args[b'text'][0].decode()
       if _text:
-        _th = threading.Thread(target=_play_sound, args=('static/audio/mixkit-horror-bell-cartoon-transition-598.wav',))
+        _th = threading.Thread(target=_play_sound, args=(settings['text_to_room_audio'],))
         _th.start()
       res = send_event('text_to_room', {'text': _text})
 
     if name == b'timer_start':
-      ok_text = 'tempo avviato'
       game_timer.start()
       deadline = game_timer.get_game_end()
       res = send_event('start_game', {'deadline': deadline})
@@ -106,14 +119,11 @@ class SendEvent(Resource):
         game_timer.stop()
 
     if name == b'timer_stop':
-      ok_text = 'tempo fermato'
-      game_timer.stop()
-      res = send_event('timer_stop', {})
+      res = self._maybe_stop_timer()
       if self._is_a_failure(res):
         game_timer.start()
 
     if name == b'start_game':
-      ok_text = 'partita avviata'
       game_timer.first_start()
       deadline = game_timer.get_game_end()
       res = send_event('start_game', {'deadline': deadline})
@@ -121,7 +131,6 @@ class SendEvent(Resource):
         game_timer.stop()
 
     if name == b'set_timer':
-      ok_text = 'timer impostato'
       _minutes = int(request.args[b'minutes'][0].decode())
       game_timer.first_start(_minutes, false_start=True)
       res = send_event('set_timer', {'minutes': _minutes})
@@ -146,11 +155,11 @@ class SendEvent(Resource):
     if not _reply:  # if the reply was not already set
       if self._is_a_failure(res):
         if res == COMM_ERR_TIMEOUT:
-          _reply = {'ko': 'stanza non raggiungibile. 1.riavviare stanza; 2.timer stop; 3.timer start'}
+          _reply = {'ko': settings['ko_room_connection_text']}
         else:
-          _reply = {'ko': 'errore'}
+          _reply = {'ko': settings['ko_generic_text']}
       else:
-        _reply = {'ok': ok_text or 'comunicazione con stanza ok'}
+        _reply = {'ok': ok_text or settings['ok_room_connection_text']}
 
     self.reply = json.dumps(_reply)
     return self
