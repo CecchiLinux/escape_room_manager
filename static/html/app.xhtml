@@ -71,6 +71,11 @@
             }
           });
         });
+
+        function text_onchange(el) {
+          var text = $(el).val();
+          $("#text_to_room").val(text);
+        }
       //]]>
     </script>
   </head>
@@ -114,6 +119,13 @@
           </div>
           <div class="container room_ready" style="visibility:hidden;">
             <input id="text_to_room" autocomplete="new-password" spellcheck="false"></input>
+          </div>
+          <div class="container left room_ready" style="visibility:hidden;">
+            <select name="cars" id="text_messages" onchange="text_onchange(this)">
+              {{#room_texts}}
+              <option>{{text}}</option>
+              {{/room_texts}}
+            </select>
           </div>
           <div class="container right room_ready" style="visibility:hidden;">
             <button id="reset_text_to_room">Cancella</button>

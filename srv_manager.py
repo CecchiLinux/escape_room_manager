@@ -3,8 +3,10 @@ import os
 import signal
 import json
 import threading
+import pystache
 from playsound import playsound
 from subprocess import Popen
+from pathlib import Path
 from twisted.web.server import Site
 from twisted.web.resource import Resource
 from twisted.web.static import File
@@ -24,23 +26,7 @@ _path = os.path.join(_path, '')  # adding '/' or '\'
 
 
 def load_settings():
-  return {
-      'game_minutes': 60,
-      'text_to_room_audio': 'static/audio/mixkit-horror-bell-cartoon-transition-598.wav',
-      'ok_messages': {
-          'game_success': 'vittoria!!!',
-          'reset_game': 'gioco resettato',
-          'text_to_room': 'testo inviato alla stanza',
-          'timer_start': 'tempo avviato',
-          'timer_stop': 'tempo fermato',
-          'start_game': 'partita avviata',
-          'set_timer': 'timer impostato',
-      },
-      'game_success_text': 'Congratulazioni, siete usciti dalla stanza!!!',
-      'ko_room_connection_text': 'stanza non raggiungibile. 1.riavviare stanza; 2.timer stop; 3.timer start',
-      'ko_generic_text': 'errore',
-      'ok_room_connection_text': 'comunicazione con stanza ok',
-  }
+  return json.loads(Path('config.json').read_text())
 
 
 settings = load_settings()
@@ -169,7 +155,12 @@ class Html(Resource):
   isLeaf = True
 
   def render_GET(self, request):
-    return FilePath('static/html/app.xhtml').getContent()
+    _d = {
+        'room_texts': [{'text': _v} for _v in settings["room_texts"]]
+    }
+    tmpl = open('static/html/app.xhtml').read()
+    html = pystache.render(tmpl, _d)
+    return html.encode()
 
 
 def main(start_broker):

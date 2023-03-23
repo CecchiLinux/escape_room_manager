@@ -3,6 +3,7 @@ qtpy
 pyqt5
 vext
 vext.gi
+pystache
 pyqtwebengine
 pywebview
 websockets

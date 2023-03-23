@@ -14,23 +14,26 @@ async def echo_broadcast(websocket, path):
   # when room connects, this function add it to the connected (no messages to read)
   connected.add(websocket)  # register websocket (no duplicates, it's a set)
   to_be_removed = []
-  async for message in websocket:
-    reply = f'broker recieved data as: {message}!'
-    print(f'{reply}')
+  try:
+    async for message in websocket:
+      reply = f'broker recieved data as: {message}!'
+      print(f'{reply}')
 
-    for conn in connected:
-      try:
-        if conn != websocket:  # don't get back to the sender
-          print(f'broker is forwarding to the recipient: [{conn} - {message}]')
-          await conn.send(message)
-          print('recipient confirmed')
-        else:
-          print('broker replying to the sender')
-          _d = {'event': 'broker_confirm', 'data': {}, 'sender': 'broker'}
-          await conn.send(json.dumps(_d))
-          print('sender confirmed')
-      except Exception:
-        to_be_removed.append(conn)
+      for conn in connected:
+        try:
+          if conn != websocket:  # don't get back to the sender
+            print(f'broker is forwarding to the recipient: [{conn} - {message}]')
+            await conn.send(message)
+            print('recipient confirmed')
+          else:
+            print('broker replying to the sender')
+            _d = {'event': 'broker_confirm', 'data': {}, 'sender': 'broker'}
+            await conn.send(json.dumps(_d))
+            print('sender confirmed')
+        except Exception:
+          to_be_removed.append(conn)
+  except websockets.ConnectionClosed as e:
+      print(f'Terminated:', e)
 
   for conn in to_be_removed:
     try:
