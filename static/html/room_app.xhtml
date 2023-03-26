@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script type="text/javascript" src="static/js/jquery.js"></script>
     <script type="text/javascript" src="static/js/jquery.textfill.js"></script>
-    <!-- <audio id="text_alert_sound" src="/static/audio/mixkit-horror-bell-cartoon-transition-598.wav" preload="auto"></audio> -->
-    <title>Room</title>
+    <title>Arcanus Betti - Escaper Room</title>
   </head>
   <style>
     body{
@@ -55,9 +54,6 @@
     }
   </style>
   <body>
-    <!-- <button onclick="" id="contact_btn">Click Here</button> -->
-    <!-- <button onclick="start_type_writer()">Click me</button> -->
-
     <div class="text_container text_center">
       <div id="clockdiv">
         <div style="display:none">
@@ -75,7 +71,7 @@
       </div>
 
       <div class="jtextfill">
-        <span id="text_element">Benvenuti</span>
+        <span id="text_element"></span>
       </div>
     </div>
 
@@ -107,7 +103,6 @@
     }
 
     function start_type_writer(text_to_write) {
-      // document.getElementById('text_alert_sound').play();
       text_index = 0;
       text_global = text_to_write;
       if (text_to_write == "") {
@@ -130,6 +125,7 @@
     var running = false;
     var timer_deadline = null;
     // var timer_deadline = new Date("2023-12-31T23:59:59").getTime();
+
     function pad(d) {
       return (d < 10) ? '0' + d.toString() : d.toString();
     }
@@ -142,7 +138,18 @@
     }
 
     var x = setInterval(function() {
-      if (!running) {return;}
+      if (!running) {
+        // var elem = $("#clockdiv");
+        // if (elem.css('visibility') == 'hidden') {
+        //   elem.css('visibility', 'visible');
+        // } else {
+        //   elem.css('visibility', 'hidden');
+        // }
+        $("#clockdiv").css('color', 'red');
+        return;
+      }
+      $("#clockdiv").css('color', 'white');
+
       var now = new Date().getTime();
       var t = timer_deadline - now;
       var days = Math.floor(t / (1000 * 60 * 60 * 24));
@@ -150,19 +157,15 @@
       var minutes = Math.floor((t % (1000 * 60 * 60)) / (1000 * 60));
       var seconds = Math.floor((t % (1000 * 60)) / 1000);
       write_time(days, hours, minutes, seconds);
-      if (t < 0) {
-        clearInterval(x);
-        // document.getElementById("demo").innerHTML = "TIME UP";
-        $("#timer_days").html("00");
-        $("#timer_hours").html("00");
-        $("#timer_minutes").html("00");
-        $("#timer_seconds").html("00");
+      if (t < 0) {  // time up
+        write_time(0, 0, 0, 0);
+        running = false;
       }
     }, 1000);
 
-    function start_timer(deadline, false_start) {
+    function start_timer(deadline) {
       timer_deadline = new Date(deadline).getTime();
-      running = !false_start;
+      running = true;
     }
     
     function set_timer(minutes, false_start) {
@@ -207,7 +210,7 @@
 
       if (message_event == "start_game") {
         var deadline = message['data']['deadline'];
-        start_timer(deadline, false);
+        start_timer(deadline);
         return;
       }
 
@@ -217,14 +220,15 @@
         return;
       }
     }
-
-
+    //]]>
+  </script>
+  <script type="text/javascript">
+    //<![CDATA[
     // Create websocket connection
     const socket = new WebSocket('ws://localhost:5000');
 
     // Connection opened
     socket.addEventListener('open', function (event) {
-      // socket.send('Connection Established');
       console.log("Connected to the WS server!");
     });
 
@@ -235,25 +239,17 @@
 
     // Send a message to the websocket
     const contact_manager = () => {
-      var data = {'event': 'room_confirm', 'data': {}, 'sender': 'room'}
+    var data = {'event': 'room_confirm', 'data': {}, 'sender': 'room'}
       socket.send(JSON.stringify(data));
     }
 
     // Listen for messages
     socket.addEventListener('message', function (event) {
-      console.log(event.data);
+      console.log("room received: " + event.data);
       var res = map_and_run_event(event);
       if (res != -1) {  // manager is not waiting reply
         contact_manager();
       }
-    });
-
-    //]]>
-  </script>
-  <script type="text/javascript">
-    //<![CDATA[
-    $(document).ready(function() {
-      $("#contact_btn").click();
     });
     //]]>
   </script>

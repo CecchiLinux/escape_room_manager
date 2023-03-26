@@ -10,7 +10,6 @@ from pathlib import Path
 from twisted.web.server import Site
 from twisted.web.resource import Resource
 from twisted.web.static import File
-from twisted.python.filepath import FilePath
 from twisted.internet import reactor
 from manager_websocket import send_event
 from manager_websocket import COMM_ERR_TIMEOUT
@@ -30,7 +29,7 @@ def load_settings():
 
 
 settings = load_settings()
-game_timer = Timer(settings['game_minutes'])
+game_timer = Timer(int(settings.get('game_minutes', '60')))
 
 
 def _spawn_proc(params):
@@ -43,8 +42,21 @@ def _spawn_proc(params):
 ######################################################
 
 
-def _play_sound(sound):
-  return playsound('%s%s' % (_path, sound,))
+def play_sound(sound, label, thread=False):
+  def _play_sound(sound):
+    return playsound(sound)
+
+  if label not in settings.get('not_muted', []):
+    return
+  sound = '%s%s' % (_path, sound,)
+  if thread:
+    _th = threading.Thread(target=_play_sound, args=(sound,))
+    _th.start()
+  else:
+    try:
+      _play_sound(sound)
+    except Exception:
+      pass
 
 
 class SendEvent(Resource):
@@ -74,30 +86,31 @@ class SendEvent(Resource):
   def getChild(self, name, request):
     _reply = {}
     res = -1  # failure as default
-    ok_text = settings['ok_messages'].get(name.decode('utf-8'), '')
-    ko_text = ''
+    str_name = name.decode('utf-8')
+    ok_text = settings.get('ok_messages', {}).get(str_name, '')
 
     if name == b'ping_room':
       res = send_event('ping_room', {})
 
     if name == b'game_success':
       res = self._maybe_stop_timer()
-      res = send_event('text_to_room', {'text': settings['game_success_text']})
+      res = send_event('text_to_room', {'text': settings.get('game_success_text', '')})
+      play_sound(settings.get('game_success_audio', ''), str_name, thread=True)
 
     if name == b'reset_game':
       res = self._maybe_stop_timer()
       game_timer.reset()
       res = send_event('set_timer', {'minutes': 0})
-      res = send_event('text_to_room', {'text': 'Benvenuti'})
+      res = send_event('text_to_room', {'text': ''})
 
     if name == b'text_to_room':
       _text = request.args[b'text'][0].decode()
       if _text:
-        _th = threading.Thread(target=_play_sound, args=(settings['text_to_room_audio'],))
-        _th.start()
+        play_sound(settings.get('text_to_room_audio', ''), str_name, thread=True)
       res = send_event('text_to_room', {'text': _text})
 
     if name == b'timer_start':
+      play_sound(settings.get('timer_start_audio', ''), str_name)
       game_timer.start()
       deadline = game_timer.get_game_end()
       res = send_event('start_game', {'deadline': deadline})
@@ -105,11 +118,13 @@ class SendEvent(Resource):
         game_timer.stop()
 
     if name == b'timer_stop':
+      play_sound(settings.get('timer_stop_audio', ''), str_name)
       res = self._maybe_stop_timer()
       if self._is_a_failure(res):
         game_timer.start()
 
     if name == b'start_game':
+      play_sound(settings.get('start_game_audio', ''), str_name)
       game_timer.first_start()
       deadline = game_timer.get_game_end()
       res = send_event('start_game', {'deadline': deadline})
@@ -137,15 +152,16 @@ class SendEvent(Resource):
           _reply = {'ok': 'gioco finito', 'status': 'finished'}
           game_timer.finish_game()
           res = send_event('text_to_room', {'text': 'Tempo scaduto'})
+          play_sound(settings.get('time_up_audio', ''), "time_up", thread=True)
 
     if not _reply:  # if the reply was not already set
       if self._is_a_failure(res):
         if res == COMM_ERR_TIMEOUT:
-          _reply = {'ko': settings['ko_room_connection_text']}
+          _reply = {'ko': settings.get('ko_room_connection_text', '')}
         else:
-          _reply = {'ko': settings['ko_generic_text']}
+          _reply = {'ko': settings.get('ko_generic_text', '')}
       else:
-        _reply = {'ok': ok_text or settings['ok_room_connection_text']}
+        _reply = {'ok': ok_text or settings.get('ok_room_connection_text', '')}
 
     self.reply = json.dumps(_reply)
     return self
@@ -156,7 +172,7 @@ class Html(Resource):
 
   def render_GET(self, request):
     _d = {
-        'room_texts': [{'text': _v} for _v in settings["room_texts"]]
+        'room_texts': [{'text': _v} for _v in settings.get('room_texts', [])]
     }
     tmpl = open('static/html/app.xhtml').read()
     html = pystache.render(tmpl, _d)

@@ -1,6 +1,11 @@
 {
   "game_minutes": 60,
-  "text_to_room_audio": "static/audio/mixkit-horror-bell-cartoon-transition-598.wav",
+  "text_to_room_audio": "static/audio/mixkit-school-calling-bell-580.wav",
+  "start_game_audio": "static/audio/246321_2609215-lq.mp3",
+  "time_up_audio": "static/audio/mixkit-church-bell-loop-621.wav",
+  "timer_stop_audio": "static/audio/pause_on.mp3",
+  "timer_start_audio": "static/audio/pause_off.mp3",
+  "game_success_audio": "static/audio/mixkit-church-bells-ending-627.wav",
   "ok_messages": {
     "game_success": "vittoria!!!",
     "reset_game": "gioco resettato",
@@ -10,6 +15,7 @@
     "start_game": "partita avviata",
     "set_timer": "timer impostato"
   },
+  "not_muted": ["start_game", "timer_start", "timer_stop", "text_to_room", "game_success", "time_up"],
   "game_success_text": "Congratulazioni, siete usciti dalla stanza!!!",
   "ko_room_connection_text": "stanza non raggiungibile. 1.riavviare stanza; 2.timer stop; 3.timer start",
   "ko_generic_text": "errore",
