@@ -16,10 +16,10 @@ class Timer():
     assert minutes > 0
     self.minutes = minutes
 
-  def get_game_end(self):
+  def get_game_end(self, format="%Y-%m-%dT%H:%M:%S"):
     assert self.running
     game_ends_at = self.game_start + timedelta(minutes=self.minutes)
-    return game_ends_at.strftime("%Y-%m-%dT%H:%M:%S")
+    return game_ends_at.strftime(format)
 
   def get_time_left(self):
     assert self.game_start

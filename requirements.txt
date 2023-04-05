@@ -7,4 +7,4 @@ pystache
 pyqtwebengine
 pywebview
 websockets
-playsound
+playsound==1.2.2

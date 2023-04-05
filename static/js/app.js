@@ -20,6 +20,7 @@ $(document).ready(function() {
         console.log('timer_start ok');
         $("#timer_start").addClass("disabled");
         $("#timer_stop").removeClass("disabled");
+        $("#timer_game_ends").text(res["deadline"]);
       }
     });
   });
@@ -31,6 +32,7 @@ $(document).ready(function() {
         console.log('timer_stop ok');
         $("#timer_stop").addClass("disabled");
         $("#timer_start").removeClass("disabled");
+        $("#timer_game_ends").text("");
       }
     });
   });
@@ -42,6 +44,7 @@ $(document).ready(function() {
         $("#timer_stop").removeClass("disabled");
         $("#game_success").removeClass("disabled");
         $("#start_game").addClass("disabled");
+        $("#timer_game_ends").text(res["deadline"]);
       } else {
         $("#start_game").addClass("disabled");
         $("#timer_start").removeClass("disabled");
@@ -73,9 +76,10 @@ $(document).ready(function() {
     $.post('/event/start_room', {}, function(data) {
       data = JSON.parse(data);
       connection_state_message(data);
-      if (data['ok']) {
-        $(".room_ready").css("visibility", "visible");
-      }
+      // if (data['ok']) {
+      //   $(".room_ready").css("visibility", "visible");
+      // }
+      $(".room_ready").css("visibility", "visible");
     });
   });
   // var x = setInterval(function() {

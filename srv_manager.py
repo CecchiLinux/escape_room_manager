@@ -48,6 +48,7 @@ def play_sound(sound, label, thread=False):
 
   if label not in settings.get('not_muted', []):
     return
+  sound = sound.replace('/', os.sep)
   sound = '%s%s' % (_path, sound,)
   if thread:
     _th = threading.Thread(target=_play_sound, args=(sound,))
@@ -116,6 +117,9 @@ class SendEvent(Resource):
       res = send_event('start_game', {'deadline': deadline})
       if self._is_a_failure(res):
         game_timer.stop()
+      else:
+        deadline = game_timer.get_game_end("%H : %M : %S")
+        _reply = {'ok': ok_text, 'deadline': deadline}
 
     if name == b'timer_stop':
       play_sound(settings.get('timer_stop_audio', ''), str_name)
@@ -130,6 +134,9 @@ class SendEvent(Resource):
       res = send_event('start_game', {'deadline': deadline})
       if self._is_a_failure(res):
         game_timer.stop()
+      else:
+        deadline = game_timer.get_game_end("%H : %M : %S")
+        _reply = {'ok': ok_text, 'deadline': deadline}
 
     if name == b'set_timer':
       _minutes = int(request.args[b'minutes'][0].decode())
