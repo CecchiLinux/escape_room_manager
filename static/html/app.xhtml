@@ -44,7 +44,7 @@
           });
         });
         $(document).on('click', '#reset_game', function(event) {
-          var res = window.confirm("Sei sicuro di voler resettare il gioco?");
+          var res = window.confirm("Are you sure?");
           if(!res) {return;}
           $.post('/event/reset_game', {}, function(data) {
             var res = JSON.parse(data);
@@ -59,7 +59,7 @@
         });
 
         $(document).on('click', '#game_success', function(event) {
-          var res = window.confirm("La squadra ha vinto?");
+          var res = window.confirm("Are you sure?");
           if(!res) {return;}
           $.post('/event/game_success', {}, function(data) {
             var res = JSON.parse(data);
@@ -88,32 +88,30 @@
             <h2>Suoni e video</h2>
           </div>
           <div class="container room_ready" style="visibility:hidden;">
-            <!-- <button>Suono di allerta</button> -->
-            <!-- <button>Mostra video apertura</button> -->
-            <button id="game_success" class="disabled">Stanza completata</button>
+            <button id="game_success" class="disabled">Game completed</button>
           </div>
         </div>
         <div style="width: 10%;">  <!-- COL_2 -->
         </div>
         <div class="item bordered">  <!-- COL_3 -->
           <div class="container title">
-            <h2>Gestione Tempo</h2>
+            <h2>Time settings</h2>
           </div>
           <div class="container right room_ready" style="visibility:hidden;">
-            <button id="set_timer">Imposta tempo</button>
-            <button id="start_game" class="disabled">Avvia Partita</button>
+            <button id="set_timer">Set timer</button>
+            <button id="start_game" class="disabled">Start the game</button>
           </div>
-          <div><span>Termine gioco:</span> <span id="timer_game_ends"></span></div>
+          <div><span>Game ends:</span> <span id="timer_game_ends"></span></div>
           <div class="container right room_ready" style="visibility:hidden;">
             <button id="timer_start" class="disabled">Play</button>
-            <button id="timer_stop" class="disabled">Pausa</button>
+            <button id="timer_stop" class="disabled">Pause</button>
           </div>
         </div>
       </div>
       <div class="container">  <!-- ROW_3 -->
         <div class="item bordered">  <!-- COL_1 -->
           <div class="container title">
-            <h2>Invia messaggio alla stanza</h2>
+            <h2>Send message to the room</h2>
           </div>
           <div class="container room_ready" style="visibility:hidden;">
             <input id="text_to_room" autocomplete="new-password" spellcheck="false"></input>
@@ -126,23 +124,23 @@
             </select>
           </div>
           <div class="container right room_ready" style="visibility:hidden;">
-            <button id="reset_text_to_room">Cancella</button>
-            <button id="send_text_to_room">Invia</button>
+            <button id="reset_text_to_room">Cancel message</button>
+            <button id="send_text_to_room">Send</button>
           </div>
         </div>
       </div>
       <div class="container">  <!-- ROW_4 -->
         <div class="item bordered">  <!-- COL_1 -->
           <div class="container title">
-            <h2>Connessione con la stanza</h2>
+            <h2>Room connection</h2>
           </div>
           <div class="container">
-            <b><span id="connection_state" class="ko_status" style="font-weight:bold;">STANZA NON CONNESSA, AVVIARE NUOVA STANZA</span></b>
+            <b><span id="connection_state" class="ko_status" style="font-weight:bold;">ROOM DISCONNECTED, START A NEW ROOM</span></b>
           </div>
           <div class="container right">
-            <button id="room_connection">Avvia Stanza</button>
-            <button id="test_room_connection">Test Manuale</button>
-            <button id="reset_game" style="background-color: rgb(143, 0, 0);">Reset gioco</button>
+            <button id="room_connection">Start a room</button>
+            <button id="test_room_connection">Manual test</button>
+            <button id="reset_game" style="background-color: rgb(143, 0, 0);">Reset all</button>
           </div>
         </div>
         <div style="width: 40%;">  <!-- COL_2 -->
