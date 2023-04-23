@@ -89,6 +89,7 @@ class SendEvent(Resource):
     res = -1  # failure as default
     str_name = name.decode('utf-8')
     ok_text = settings.get('ok_messages', {}).get(str_name, '')
+    ko_text = settings.get('ko_messages', {}).get(str_name, '')
 
     if name == b'ping_room':
       res = send_event('ping_room', {})
@@ -148,20 +149,20 @@ class SendEvent(Resource):
       res = send_event('ping_room', {})
       if self._is_a_failure(res):
         proc_room = _spawn_proc(['python', '%ssrv_room.py' % _path])
-        _reply = {'ok': 'stanza avviata'}
+        _reply = {'ok': ok_text}
       else:
-        _reply = {'ko': 'stanza già avviata, controlla tra le finestre aperte'}
+        _reply = {'ko': ko_text}
     
     if name == b'is_game_finished':
-      _reply = {'ok': 'gioco in corso', 'status': 'running'}
+      _reply = {'ok': ok_text, 'status': 'running'}
       if game_timer.running:
         if game_timer.get_time_left().total_seconds() <= 0:
           _reply = {'ok': 'gioco finito', 'status': 'finished'}
           game_timer.finish_game()
-          res = send_event('text_to_room', {'text': 'Tempo scaduto'})
+          res = send_event('text_to_room', {'text': settings.get('time_up_text', '')})
           play_sound(settings.get('time_up_audio', ''), "time_up", thread=True)
 
-    if not _reply:  # if the reply was not already set
+    if not _reply:  # if the reply was not set yet
       if self._is_a_failure(res):
         if res == COMM_ERR_TIMEOUT:
           _reply = {'ko': settings.get('ko_room_connection_text', '')}

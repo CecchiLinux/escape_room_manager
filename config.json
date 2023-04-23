@@ -13,10 +13,17 @@
     "timer_start": "tempo avviato",
     "timer_stop": "tempo fermato",
     "start_game": "partita avviata",
-    "set_timer": "timer impostato"
+    "set_timer": "timer impostato",
+    "start_room": "stanza avviata",
+    "is_game_finished": "gioco in corso"
+  },
+  "ko_messages": {
+    "start_room": "stanza già avviata, controlla tra le finestre aperte",
+    "is_game_finished": "gioco in corso"
   },
   "not_muted": ["start_game", "timer_start", "timer_stop", "text_to_room", "game_success", "time_up"],
   "game_success_text": "Congratulazioni, siete usciti dalla stanza!!!",
+  "time_up_text": "Il tempo a vostra disposizione e' terminato",
   "ko_room_connection_text": "stanza non raggiungibile. 1.riavviare stanza; 2.timer stop; 3.timer start",
   "ko_generic_text": "errore",
   "ok_room_connection_text": "comunicazione con stanza ok",
