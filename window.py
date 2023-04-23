@@ -6,7 +6,7 @@ import webview
 
 
 def init_window(url, port, name):
-  window = webview.create_window(name, '%s:%s' % (url, port,))
+  window = webview.create_window(name, '%s:%s' % (url, port,), min_size=(1200, 1000))
 
   def on_closing():
     if os.name == 'nt':

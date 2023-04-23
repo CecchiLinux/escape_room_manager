@@ -1,1 +1,1 @@
-c:\Windows\py.exe C:\Users\enric\repos\escape_room_manager\srv_manager.py 1 %*
+c:\Windows\py.exe C:\Users\ibm\repos\escape_room_manager\srv_manager.py 1 %*
