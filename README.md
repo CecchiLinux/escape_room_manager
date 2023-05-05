@@ -4,10 +4,26 @@ SW used in {ONE} real escape room (Let me know if the counter should be updated)
 
 ![Screenshot of the app running.](screenshot.jpeg)
 
-## Dependencies & installation
-The SW was tested on Linux and Windows 11
-See the file requirements.txt for the Python modules dependecies.
-For Windows 11, change the path on the escape.bat file
+# Getting started
+
+Tested on Linux and Windows. Python 3.10
+
+### Install
+
+``` bash
+pip3 install -r requirements.txt
+```
+
+### Run
+
+On Linux run in the console
+
+``` bash
+python3 srv_manager.py 1
+```
+
+On Windows change the path on the escape.bat file. Then double click it
 
 ## Contributing
-Any contributions you make are greatly appreciated. Please, respect the K.I.S.S principle.
+Any contributions you make are greatly appreciated.
+Feel free to write to me!
