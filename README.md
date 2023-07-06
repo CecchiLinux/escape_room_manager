@@ -1,6 +1,7 @@
 # escape_room_manager
 Control room SW for real-life escape room games.
-SW used in {ONE} real escape room (Let me know if the counter should be updated)
+SW used in {1} real escape room, {53} sessions.
+Let me know if the counters should be updated :)
 
 ![Screenshot of the app running.](screenshot.jpeg)
 
